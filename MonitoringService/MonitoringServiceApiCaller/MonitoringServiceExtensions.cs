@@ -11,7 +11,7 @@ namespace Lykke.MonitoringServiceApiCaller
     /// <summary>
     /// Extension methods for MonitoringService.
     /// </summary>
-    internal static partial class MonitoringServiceExtensions
+    public static partial class MonitoringServiceExtensions
     {
             /// <param name='operations'>
             /// The operations group for this extension method.
@@ -56,6 +56,97 @@ namespace Lykke.MonitoringServiceApiCaller
             public static async Task ApiMonitoringPingPostAsync(this IMonitoringService operations, MonitoringObjectPingModel model = default(MonitoringObjectPingModel), CancellationToken cancellationToken = default(CancellationToken))
             {
                 (await operations.ApiMonitoringPingPostWithHttpMessagesAsync(model, null, cancellationToken).ConfigureAwait(false)).Dispose();
+            }
+
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
+            /// <param name='model'>
+            /// </param>
+            public static void ApiMonitoringMutePost(this IMonitoringService operations, MonitoringObjectMuteModel model = default(MonitoringObjectMuteModel))
+            {
+                operations.ApiMonitoringMutePostAsync(model).GetAwaiter().GetResult();
+            }
+
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
+            /// <param name='model'>
+            /// </param>
+            /// <param name='cancellationToken'>
+            /// The cancellation token.
+            /// </param>
+            public static async Task ApiMonitoringMutePostAsync(this IMonitoringService operations, MonitoringObjectMuteModel model = default(MonitoringObjectMuteModel), CancellationToken cancellationToken = default(CancellationToken))
+            {
+                (await operations.ApiMonitoringMutePostWithHttpMessagesAsync(model, null, cancellationToken).ConfigureAwait(false)).Dispose();
+            }
+
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
+            /// <param name='model'>
+            /// </param>
+            public static void ApiMonitoringUnmutePost(this IMonitoringService operations, MonitoringObjectUnmuteModel model = default(MonitoringObjectUnmuteModel))
+            {
+                operations.ApiMonitoringUnmutePostAsync(model).GetAwaiter().GetResult();
+            }
+
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
+            /// <param name='model'>
+            /// </param>
+            /// <param name='cancellationToken'>
+            /// The cancellation token.
+            /// </param>
+            public static async Task ApiMonitoringUnmutePostAsync(this IMonitoringService operations, MonitoringObjectUnmuteModel model = default(MonitoringObjectUnmuteModel), CancellationToken cancellationToken = default(CancellationToken))
+            {
+                (await operations.ApiMonitoringUnmutePostWithHttpMessagesAsync(model, null, cancellationToken).ConfigureAwait(false)).Dispose();
+            }
+
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
+            public static ListDataUrlMonitoringObjectModel ApiUrlMonitoringGet(this IMonitoringService operations)
+            {
+                return operations.ApiUrlMonitoringGetAsync().GetAwaiter().GetResult();
+            }
+
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
+            /// <param name='cancellationToken'>
+            /// The cancellation token.
+            /// </param>
+            public static async Task<ListDataUrlMonitoringObjectModel> ApiUrlMonitoringGetAsync(this IMonitoringService operations, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                using (var _result = await operations.ApiUrlMonitoringGetWithHttpMessagesAsync(null, cancellationToken).ConfigureAwait(false))
+                {
+                    return _result.Body;
+                }
+            }
+
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
+            /// <param name='model'>
+            /// </param>
+            public static void ApiUrlMonitoringMonitorPost(this IMonitoringService operations, UrlMonitoringObjectModel model = default(UrlMonitoringObjectModel))
+            {
+                operations.ApiUrlMonitoringMonitorPostAsync(model).GetAwaiter().GetResult();
+            }
+
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
+            /// <param name='model'>
+            /// </param>
+            /// <param name='cancellationToken'>
+            /// The cancellation token.
+            /// </param>
+            public static async Task ApiUrlMonitoringMonitorPostAsync(this IMonitoringService operations, UrlMonitoringObjectModel model = default(UrlMonitoringObjectModel), CancellationToken cancellationToken = default(CancellationToken))
+            {
+                (await operations.ApiUrlMonitoringMonitorPostWithHttpMessagesAsync(model, null, cancellationToken).ConfigureAwait(false)).Dispose();
             }
 
     }

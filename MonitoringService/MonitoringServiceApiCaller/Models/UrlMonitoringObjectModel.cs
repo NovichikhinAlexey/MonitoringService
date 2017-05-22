@@ -8,23 +8,23 @@ namespace Lykke.MonitoringServiceApiCaller.Models
     using Newtonsoft.Json;
     using System.Linq;
 
-    public partial class MonitoringObjectPingModel
+    public partial class UrlMonitoringObjectModel
     {
         /// <summary>
-        /// Initializes a new instance of the MonitoringObjectPingModel class.
+        /// Initializes a new instance of the UrlMonitoringObjectModel class.
         /// </summary>
-        public MonitoringObjectPingModel()
+        public UrlMonitoringObjectModel()
         {
           CustomInit();
         }
 
         /// <summary>
-        /// Initializes a new instance of the MonitoringObjectPingModel class.
+        /// Initializes a new instance of the UrlMonitoringObjectModel class.
         /// </summary>
-        public MonitoringObjectPingModel(string serviceName = default(string), string version = default(string))
+        public UrlMonitoringObjectModel(string serviceName = default(string), string url = default(string))
         {
             ServiceName = serviceName;
-            Version = version;
+            Url = url;
             CustomInit();
         }
 
@@ -40,8 +40,8 @@ namespace Lykke.MonitoringServiceApiCaller.Models
 
         /// <summary>
         /// </summary>
-        [JsonProperty(PropertyName = "version")]
-        public string Version { get; set; }
+        [JsonProperty(PropertyName = "url")]
+        public string Url { get; set; }
 
     }
 }

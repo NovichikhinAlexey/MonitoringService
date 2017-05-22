@@ -4,6 +4,7 @@
 
 namespace Lykke.MonitoringServiceApiCaller.Models
 {
+    using Lykke.MonitoringServiceApiCaller;
     using Newtonsoft.Json;
     using System.Collections;
     using System.Collections.Generic;
