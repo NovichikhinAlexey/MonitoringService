@@ -1,4 +1,4 @@
-﻿using MonitoringServiceApiCaller.Models;
+﻿using Lykke.MonitoringServiceApiCaller.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
