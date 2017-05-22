@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+  monitoringservice:
+    image: lykkex/monitoringservice:${tag}
+    ports:
+     - "${Port}:5000"
+    environment:
+     - ConnectionStrings__ConnectionString=${SettingsConnString}

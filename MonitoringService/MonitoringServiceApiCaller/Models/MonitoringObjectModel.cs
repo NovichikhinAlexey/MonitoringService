@@ -2,7 +2,7 @@
 // Changes may cause incorrect behavior and will be lost if the code is
 // regenerated.
 
-namespace MonitoringServiceApiCaller.Models
+namespace Lykke.MonitoringServiceApiCaller.Models
 {
     using Newtonsoft.Json;
     using System.Linq;

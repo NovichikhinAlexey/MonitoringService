@@ -1,7 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.4</TargetFramework>
+    <TargetFramework>netstandard1.6</TargetFramework>
+    <Authors>Lykke</Authors>
+    <Company>Lykke</Company>
+    <PackageId>Lykke.MonitoringServiceApiCaller</PackageId>
+    <Product>Lykke.MonitoringServiceApiCaller</Product>
+    <PackageLicenseUrl>https://github.com/LykkeCity/MonitoringService/blob/master/LICENSE</PackageLicenseUrl>
+    <Copyright>Lykke 2017</Copyright>
+    <NeutralLanguage>en-001</NeutralLanguage>
+    <PackageTags>Lykke Monitoring Service MonitoringService</PackageTags>
+    <RepositoryUrl>https://github.com/LykkeCity/MonitoringService</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/LykkeCity/MonitoringService</PackageProjectUrl>
+    <Description>Api service for health check.</Description>
+    <AssemblyName>Lykke.MonitoringServiceApiCaller</AssemblyName>
+    <RootNamespace>Lykke.MonitoringServiceApiCaller</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
