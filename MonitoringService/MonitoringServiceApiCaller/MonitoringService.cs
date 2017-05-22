@@ -15,7 +15,7 @@ namespace Lykke.MonitoringServiceApiCaller
     using System.Threading;
     using System.Threading.Tasks;
 
-    public partial class MonitoringService : ServiceClient<MonitoringService>, IMonitoringService
+    internal partial class MonitoringService : ServiceClient<MonitoringService>, IMonitoringService
     {
         /// <summary>
         /// The base URI of the service.
