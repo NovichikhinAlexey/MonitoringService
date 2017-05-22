@@ -1,5 +1,5 @@
 FROM microsoft/aspnetcore:1.1.1
-ENTRYPOINT ["dotnet", "ApiRunner.dll"]
+ENTRYPOINT ["dotnet", "MonitoringService.dll"]
 ARG source=.
 WORKDIR /app
 COPY $source .

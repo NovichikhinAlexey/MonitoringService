@@ -20,6 +20,7 @@ namespace Core.Settings
 
     public class DB
     {
-        public string SlackConnectionString{ get; set; }
+        public string SlackConnectionString { get; set; }
+        public string SharedConnectionString { get; set; }
     }
 }

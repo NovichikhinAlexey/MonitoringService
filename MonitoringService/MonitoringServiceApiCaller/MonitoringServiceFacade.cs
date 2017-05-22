@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Lykke.MonitoringServiceApiCaller
 {
+    /// <summary>
+    /// MonitoringServiceFacade uses HttpClient. Consider using it as singleton. 
+    /// </summary>
     public class MonitoringServiceFacade
     {
         private readonly IMonitoringService _monitoringService;

@@ -51,5 +51,10 @@ namespace Services
                 await _slackNotifier.ErrorAsync($"No updates from {service.ServiceName} within {formattedDiff}!");
             });
         }
+
+        private async Task CheckAPIs()
+        {
+
+        }
     }
 }
