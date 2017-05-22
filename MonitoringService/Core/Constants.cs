@@ -8,6 +8,7 @@ namespace Core
     {
         public const string SlackQueueName = "";
 
-        public static string ApiMonitoringObjectTable { get; set; }
+        public const string ApiMonitoringObjectTable = "ApiMonitoringObject";
+        public const string ApiHealthCheckErrorTable = "ApiHealthCheckError";
     }
 }

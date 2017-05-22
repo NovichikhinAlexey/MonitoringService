@@ -9,50 +9,60 @@ using Microsoft.WindowsAzure.Storage;
 
 namespace Repositories
 {
-    public class ApiMonitoringObjectEntity : IApiMonitoringObject, ITableEntity
+    public class ApiMonitoringObjectEntity : TableEntity, IApiMonitoringObject
     {
-        public string ServiceName { get; set; }
+        public string ServiceName
+        {
+            get
+            {
+                return this.RowKey;
+            }
+
+            set
+            {
+                this.RowKey = value;
+            }
+        }
         public string Version { get; set; }
         public string Url { get; set; }
-        public string PartitionKey { get; set; }
-        public string RowKey { get; set; }
-        public DateTimeOffset Timestamp { get; set; }
-        public string ETag { get; set; }
 
         public static string GetPartitionKey()
         {
-            return "ApiMonitoring";
+            return "ApiMonitoringObject";
         }
 
         public static ApiMonitoringObjectEntity GetApiMonitoringObjectEntity(IApiMonitoringObject mObject)
         {
             return new ApiMonitoringObjectEntity()
             {
-                //ServiceName = ,
-                //Url = ,
-                //Version =,
+                PartitionKey = GetPartitionKey(),
+                ServiceName = mObject.ServiceName,
+                Url = mObject.Url
             };
-        }
-
-        public void ReadEntity(IDictionary<string, EntityProperty> properties, OperationContext operationContext)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IDictionary<string, EntityProperty> WriteEntity(OperationContext operationContext)
-        {
-            throw new NotImplementedException();
         }
     }
 
     public class ApiMonitoringObjectRepository : IApiMonitoringObjectRepository
     {
-        public ApiMonitoringObjectRepository(INoSQLTableStorage<ApiMonitoringObjectEntity> table)
-        { }
+        private readonly INoSQLTableStorage<ApiMonitoringObjectEntity> _table;
 
-        public Task<IEnumerable<IApiMonitoringObject>> GetAll()
+        public ApiMonitoringObjectRepository(INoSQLTableStorage<ApiMonitoringObjectEntity> table)
         {
-            throw new NotImplementedException();
+            _table = table;
+        }
+
+        public async Task<IEnumerable<IApiMonitoringObject>> GetAll()
+        {
+            IEnumerable<IApiMonitoringObject> allApi = await _table.GetDataAsync(ApiMonitoringObjectEntity.GetPartitionKey());
+
+            return allApi;
+        }
+
+        public async Task Insert(IApiMonitoringObject aObject)
+        {
+            var entity = ApiMonitoringObjectEntity.GetApiMonitoringObjectEntity(aObject);
+
+            await _table.InsertOrReplaceAsync(entity);
         }
     }
 }

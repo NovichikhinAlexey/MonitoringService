@@ -43,12 +43,25 @@ namespace MonitoringService.Controllers
             var mappedModel = new MonitoringObject()
             {
                 ServiceName = model.ServiceName,
-                SkipCheckUntil = model.SkipUntil,
                 Version = model.Version,
                 LastTime = DateTime.UtcNow
             };
 
             await _monitoringService.Ping(mappedModel);
+        }
+
+        [HttpPost]
+        [Route("mute")]
+        public async Task Mute([FromBody]MonitoringObjectMuteModel model)
+        {
+            await _monitoringService.Mute(model.ServiceName, model.Minutes);
+        }
+
+        [HttpPost]
+        [Route("unmute")]
+        public async Task Unmute([FromBody]MonitoringObjectUnmuteModel model)
+        {
+            await _monitoringService.Unmute(model.ServiceName);
         }
     }
 }

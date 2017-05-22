@@ -11,5 +11,7 @@ namespace Core.Services
         //In future may require async
         Task Ping(MonitoringObject mObject);
         Task<IEnumerable<MonitoringObject>> GetCurrentSnapshot();
+        Task Mute(string serviceName, int minutes);
+        Task Unmute(string serviceName);
     }
 }

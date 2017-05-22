@@ -22,6 +22,14 @@ namespace Services
             return _monitoringDictionary.Values;
         }
 
+        public async Task<MonitoringObject> GetByName(string serviceName)
+        {
+            MonitoringObject mObject;
+            _monitoringDictionary.TryGetValue(serviceName, out mObject);
+
+            return mObject;
+        }
+
         public async Task Insert(MonitoringObject mObject)
         {
             _monitoringDictionary[mObject.ServiceName] = mObject;

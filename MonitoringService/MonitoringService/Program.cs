@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 
 using System.Threading;
 using System.Runtime.Loader;
+using Common.Log;
 
 namespace MonitoringService
 {
@@ -26,15 +27,25 @@ namespace MonitoringService
                 .UseApplicationInsights()
                 .Build();
 
+            var log = Startup.ServiceProvider.GetService<ILog>();
             IMonitoringJob job = Startup.ServiceProvider.GetService<IMonitoringJob>();
             var end = new ManualResetEvent(false);
             CancellationTokenSource cts = new CancellationTokenSource();
+
+            
 
             Task.Run(async () => 
             {
                 while (!cts.IsCancellationRequested)
                 {
-                    await job.Execute();
+                    try
+                    {
+                        await job.Execute();
+                    }
+                    catch (Exception e)
+                    {
+                        log.WriteErrorAsync("MonitoringService", "Program", "MonitoringJob", e, DateTime.UtcNow).Wait();
+                    }
                     await Task.Delay(60 * 1000);
                 }
 
@@ -48,6 +59,9 @@ namespace MonitoringService
             };
 
             host.Run();
+
+            log.WriteInfoAsync("MonitoringService", "Program", "Main", "Monitoring Service has been stopped", DateTime.UtcNow).Wait();
+
             end.Set();
         }
     }

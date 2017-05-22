@@ -20,6 +20,7 @@ namespace MonitoringService.Dependencies
             collection.AddSingleton<IQueueFactory, QueueFactory>();
             collection.AddSingleton<IMonitoringService, Services.MonitoringService>();
             collection.AddSingleton<ISlackNotifier, SlackNotifier>();
+            collection.AddSingleton<IUrlMonitoringService, UrlMonitoringService>();
         }
     }
 }

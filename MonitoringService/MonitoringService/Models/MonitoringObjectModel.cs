@@ -30,8 +30,22 @@ namespace MonitoringService.Models
 
         [DataMember(Name = "version")]
         public string Version { get; set; }
+    }
 
-        [DataMember(Name = "skipUntil")]
-        public DateTime? SkipUntil { get; set; }
+    [DataContract]
+    public class MonitoringObjectMuteModel
+    {
+        [DataMember(Name = "serviceName")]
+        public string ServiceName { get; set; }
+
+        [DataMember(Name = "minutes")]
+        public int Minutes { get; set; }
+    }
+
+    [DataContract]
+    public class MonitoringObjectUnmuteModel
+    {
+        [DataMember(Name = "serviceName")]
+        public string ServiceName { get; set; }
     }
 }

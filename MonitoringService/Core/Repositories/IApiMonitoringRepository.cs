@@ -9,12 +9,19 @@ namespace Core.Repositories
     public interface IApiMonitoringObject
     {
         string ServiceName { get; set; }
-        string Version { get; set; }
         string Url { get; set; }
+    }
+
+    public class ApiMonitoringObject : IApiMonitoringObject
+    {
+        public string ServiceName { get; set; }
+        public string Url { get; set; }
     }
 
     public interface IApiMonitoringObjectRepository
     {
         Task<IEnumerable<IApiMonitoringObject>> GetAll();
+
+        Task Insert(IApiMonitoringObject aObject);
     }
 }

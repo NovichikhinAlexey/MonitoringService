@@ -9,7 +9,6 @@ namespace Services
 {
     public class MonitoringService : IMonitoringService
     {
-        
         private IMonitoringObjectRepository _monitorObjectRepository;
 
         public MonitoringService(IMonitoringObjectRepository monitorObjectRepository)
@@ -23,8 +22,22 @@ namespace Services
             
         }
 
+        public async Task Mute(string serviceName, int minutes)
+        {
+            MonitoringObject mObject = await _monitorObjectRepository.GetByName(serviceName);
+            mObject.SkipCheckUntil = DateTime.UtcNow.AddMinutes(minutes);
+            await _monitorObjectRepository.Insert(mObject);
+        }
+
         public async Task Ping(MonitoringObject mObject)
         {
+            await _monitorObjectRepository.Insert(mObject);
+        }
+
+        public async Task Unmute(string serviceName)
+        {
+            MonitoringObject mObject = await _monitorObjectRepository.GetByName(serviceName);
+            mObject.SkipCheckUntil = null;
             await _monitorObjectRepository.Insert(mObject);
         }
     }

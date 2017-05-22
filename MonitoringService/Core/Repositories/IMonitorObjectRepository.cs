@@ -10,5 +10,6 @@ namespace Core.Repositories
     {
         Task Insert(MonitoringObject mObject);
         Task<IEnumerable<MonitoringObject>> GetAll();
+        Task<MonitoringObject> GetByName(string serviceName);
     }
 }

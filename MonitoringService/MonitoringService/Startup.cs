@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Swagger;
 using Core.Settings;
 using MonitoringService.Dependencies;
+using AzureRepositories;
 
 namespace MonitoringService
 {
@@ -33,6 +34,8 @@ namespace MonitoringService
         {
             var settings = GetSettings(Configuration);
             services.AddSingleton<IBaseSettings>(settings);
+            services.RegisterAzureLogs(settings);
+            services.RegisterAzureStorages(settings);
             services.RegDependencies();
             services.AddSwaggerGen(c =>
             {
