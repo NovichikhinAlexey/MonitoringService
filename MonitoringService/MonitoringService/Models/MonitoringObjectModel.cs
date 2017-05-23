@@ -20,6 +20,9 @@ namespace MonitoringService.Models
 
         [DataMember(Name = "skipUntil")]
         public DateTime? SkipUntil { get; set; }
+
+        [DataMember(Name = "url")]
+        public string Url { get; set; }
     }
 
     [DataContract]

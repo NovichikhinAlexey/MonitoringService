@@ -21,6 +21,7 @@ namespace MonitoringService.Dependencies
             collection.AddSingleton<IMonitoringService, Services.MonitoringService>();
             collection.AddSingleton<ISlackNotifier, SlackNotifier>();
             collection.AddSingleton<IUrlMonitoringService, UrlMonitoringService>();
+            collection.AddSingleton<IIsAliveService, IsAliveService>();
         }
     }
 }

@@ -35,6 +35,18 @@ namespace Lykke.MonitoringServiceApiCaller
             await _monitoringService.ApiMonitoringPingPostAsync(pingModel);
         }
 
+        public async Task<MonitoringObjectModel> GetService(string serviceName)
+        {
+            MonitoringObjectModel result = await _monitoringService.ApiMonitoringByServiceNameGetAsync(serviceName);
+
+            return result;
+        }
+
+        public async Task RemoveService(string serviceName)
+        {
+            await _monitoringService.ApiMonitoringRemoveByServiceNameDeleteAsync(serviceName);
+        }
+
         public async Task Mute(MonitoringObjectMuteModel muteModel)
         {
             await _monitoringService.ApiMonitoringMutePostAsync(muteModel);

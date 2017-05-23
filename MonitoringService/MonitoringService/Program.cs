@@ -12,6 +12,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Runtime.Loader;
 using Common.Log;
+using Core.Settings;
 
 namespace MonitoringService
 {
@@ -27,26 +28,28 @@ namespace MonitoringService
                 .UseApplicationInsights()
                 .Build();
 
+            var settings = Startup.ServiceProvider.GetService<IBaseSettings>();
             var log = Startup.ServiceProvider.GetService<ILog>();
             IMonitoringJob job = Startup.ServiceProvider.GetService<IMonitoringJob>();
             var end = new ManualResetEvent(false);
             CancellationTokenSource cts = new CancellationTokenSource();
 
-            
-
             Task.Run(async () => 
             {
+                int secondsDelay = settings.MonitoringJobFrequency;
+
                 while (!cts.IsCancellationRequested)
                 {
                     try
                     {
-                        await job.Execute();
+                       await job.Execute();
                     }
                     catch (Exception e)
                     {
                         log.WriteErrorAsync("MonitoringService", "Program", "MonitoringJob", e, DateTime.UtcNow).Wait();
                     }
-                    await Task.Delay(60 * 1000);
+
+                    await Task.Delay(secondsDelay * 1000);
                 }
 
                 end.WaitOne();

@@ -21,12 +21,13 @@ namespace Lykke.MonitoringServiceApiCaller.Models
         /// <summary>
         /// Initializes a new instance of the MonitoringObjectModel class.
         /// </summary>
-        public MonitoringObjectModel(string serviceName = default(string), string version = default(string), System.DateTime? lastPing = default(System.DateTime?), System.DateTime? skipUntil = default(System.DateTime?))
+        public MonitoringObjectModel(string serviceName = default(string), string version = default(string), System.DateTime? lastPing = default(System.DateTime?), System.DateTime? skipUntil = default(System.DateTime?), string url = default(string))
         {
             ServiceName = serviceName;
             Version = version;
             LastPing = lastPing;
             SkipUntil = skipUntil;
+            Url = url;
             CustomInit();
         }
 
@@ -54,6 +55,11 @@ namespace Lykke.MonitoringServiceApiCaller.Models
         /// </summary>
         [JsonProperty(PropertyName = "skipUntil")]
         public System.DateTime? SkipUntil { get; set; }
+
+        /// <summary>
+        /// </summary>
+        [JsonProperty(PropertyName = "url")]
+        public string Url { get; set; }
 
     }
 }

@@ -16,12 +16,12 @@ namespace Services
             _apiMonitoringObjectRepository = apiMonitoringObjectRepository;
         }
 
-        public async Task Monitor(IApiMonitoringObject aObject)
+        public async Task Monitor(IMonitoringObject aObject)
         {
             await _apiMonitoringObjectRepository.Insert(aObject);
         }
 
-        public async Task<IEnumerable<IApiMonitoringObject>> GetAll()
+        public async Task<IEnumerable<IMonitoringObject>> GetAll()
         {
             return await _apiMonitoringObjectRepository.GetAll();
         }

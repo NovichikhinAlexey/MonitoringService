@@ -6,10 +6,11 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
+using Core.Models;
 
 namespace Repositories
 {
-    public class ApiMonitoringObjectEntity : TableEntity, IApiMonitoringObject
+    public class ApiMonitoringObjectEntity : TableEntity, IMonitoringObject
     {
         public string ServiceName
         {
@@ -25,19 +26,24 @@ namespace Repositories
         }
         public string Version { get; set; }
         public string Url { get; set; }
+        public DateTime LastTime { get; set; }
+        public DateTime? SkipCheckUntil { get; set; }
 
         public static string GetPartitionKey()
         {
             return "ApiMonitoringObject";
         }
 
-        public static ApiMonitoringObjectEntity GetApiMonitoringObjectEntity(IApiMonitoringObject mObject)
+        public static ApiMonitoringObjectEntity GetApiMonitoringObjectEntity(IMonitoringObject mObject)
         {
             return new ApiMonitoringObjectEntity()
             {
                 PartitionKey = GetPartitionKey(),
                 ServiceName = mObject.ServiceName,
-                Url = mObject.Url
+                Url = mObject.Url,
+                LastTime = mObject.LastTime,
+                SkipCheckUntil = mObject.SkipCheckUntil,
+                Version = mObject.Version
             };
         }
     }
@@ -51,18 +57,30 @@ namespace Repositories
             _table = table;
         }
 
-        public async Task<IEnumerable<IApiMonitoringObject>> GetAll()
+        public async Task<IEnumerable<IMonitoringObject>> GetAll()
         {
-            IEnumerable<IApiMonitoringObject> allApi = await _table.GetDataAsync(ApiMonitoringObjectEntity.GetPartitionKey());
+            IEnumerable<IMonitoringObject> allApi = await _table.GetDataAsync(ApiMonitoringObjectEntity.GetPartitionKey());
 
             return allApi;
         }
 
-        public async Task Insert(IApiMonitoringObject aObject)
+        public async Task<IMonitoringObject> GetByName(string serviceName)
+        {
+            ApiMonitoringObjectEntity mObject = await _table.GetDataAsync(ApiMonitoringObjectEntity.GetPartitionKey(), serviceName);
+
+            return mObject;
+        }
+
+        public async Task Insert(IMonitoringObject aObject)
         {
             var entity = ApiMonitoringObjectEntity.GetApiMonitoringObjectEntity(aObject);
 
             await _table.InsertOrReplaceAsync(entity);
+        }
+
+        public async Task Remove(string serviceName)
+        {
+            await _table.DeleteIfExistAsync(ApiMonitoringObjectEntity.GetPartitionKey(), serviceName);
         }
     }
 }

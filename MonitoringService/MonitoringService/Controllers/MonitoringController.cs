@@ -30,10 +30,28 @@ namespace MonitoringService.Controllers
                 ServiceName = x.ServiceName,
                 Version = x.Version,
                 LastPing = x.LastTime,
-                SkipUntil = x.SkipCheckUntil
+                SkipUntil = x.SkipCheckUntil,
+                Url = x.Url
             });
 
             return Ok(new ListData<MonitoringObjectModel>() { Data = model });
+        }
+
+        [HttpGet]
+        [Route("{serviceName}")]
+        [ProducesResponseType(typeof(MonitoringObjectModel), 200)]
+        public async Task<IActionResult> Get([FromRoute]string serviceName)
+        {
+            IMonitoringObject mObject = await _monitoringService.GetByName(serviceName);
+
+            return Ok(new MonitoringObjectModel()
+            {
+                LastPing = mObject.LastTime,
+                ServiceName = mObject.ServiceName,
+                SkipUntil = mObject.SkipCheckUntil,
+                Version = mObject.Version,
+                Url = mObject.Url
+            });
         }
 
         [HttpPost]
@@ -62,6 +80,13 @@ namespace MonitoringService.Controllers
         public async Task Unmute([FromBody]MonitoringObjectUnmuteModel model)
         {
             await _monitoringService.Unmute(model.ServiceName);
+        }
+
+        [HttpDelete]
+        [Route("remove/{serviceName}")]
+        public async Task Remove([FromRoute]string serviceName)
+        {
+            await _monitoringService.Remove(serviceName);
         }
     }
 }

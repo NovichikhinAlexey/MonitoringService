@@ -39,7 +39,7 @@ namespace MonitoringService.Controllers
         [Route("monitor")]
         public async Task Post([FromBody]UrlMonitoringObjectModel model)
         {
-            var mappedModel = new ApiMonitoringObject()
+            var mappedModel = new MonitoringObject()
             {
                 ServiceName = model.ServiceName,
                 Url = model.Url

@@ -6,22 +6,11 @@ using System.Threading.Tasks;
 
 namespace Core.Repositories
 {
-    public interface IApiMonitoringObject
-    {
-        string ServiceName { get; set; }
-        string Url { get; set; }
-    }
-
-    public class ApiMonitoringObject : IApiMonitoringObject
-    {
-        public string ServiceName { get; set; }
-        public string Url { get; set; }
-    }
-
     public interface IApiMonitoringObjectRepository
     {
-        Task<IEnumerable<IApiMonitoringObject>> GetAll();
-
-        Task Insert(IApiMonitoringObject aObject);
+        Task<IEnumerable<IMonitoringObject>> GetAll();
+        Task Insert(IMonitoringObject aObject);
+        Task<IMonitoringObject> GetByName(string serviceName);
+        Task Remove(string serviceName);
     }
 }

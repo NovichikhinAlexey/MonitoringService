@@ -9,30 +9,35 @@ namespace Services
 {
     public class MonitoringObjectRepository : IMonitoringObjectRepository
     {
-        private IDictionary<string, MonitoringObject> _monitoringDictionary;
+        private IDictionary<string, IMonitoringObject> _monitoringDictionary;
         private readonly Guid _guid = Guid.NewGuid();
 
         public MonitoringObjectRepository()
         {
-            _monitoringDictionary = new Dictionary<string, MonitoringObject>();
+            _monitoringDictionary = new Dictionary<string, IMonitoringObject>();
         }
 
-        public async Task<IEnumerable<MonitoringObject>> GetAll()
+        public async Task<IEnumerable<IMonitoringObject>> GetAll()
         {
             return _monitoringDictionary.Values;
         }
 
-        public async Task<MonitoringObject> GetByName(string serviceName)
+        public async Task<IMonitoringObject> GetByName(string serviceName)
         {
-            MonitoringObject mObject;
+            IMonitoringObject mObject;
             _monitoringDictionary.TryGetValue(serviceName, out mObject);
 
             return mObject;
         }
 
-        public async Task Insert(MonitoringObject mObject)
+        public async Task Insert(IMonitoringObject mObject)
         {
             _monitoringDictionary[mObject.ServiceName] = mObject;
+        }
+
+        public async Task Remove(string serviceName)
+        {
+            _monitoringDictionary.Remove(serviceName);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using Core.Jobs;
+﻿using Common.Log;
+using Core.Exceptions;
+using Core.Jobs;
 using Core.Models;
 using Core.Repositories;
 using Core.Services;
@@ -15,40 +17,51 @@ namespace Services
 {
     public class MonitoringJob : IMonitoringJob
     {
-        private readonly IMonitoringObjectRepository _monitoringObjectRepository;
+        private readonly IMonitoringService _monitoringService;
+        private readonly IApiMonitoringObjectRepository _apiMonitoringObjectRepository;
         private readonly IBaseSettings _settings;
         private readonly ISlackNotifier _slackNotifier;
-        private readonly IApiMonitoringObjectRepository _apiMonitoringObjectRepository;
-        private readonly HttpClient _httpClient;
         private IApiHealthCheckErrorRepository _apiHealthCheckErrorRepository;
+        private readonly IIsAliveService _isAliveService;
 
-        public MonitoringJob(IMonitoringObjectRepository monitoringObjectRepository,
+        public MonitoringJob(IMonitoringService monitoringService,
             IBaseSettings settings,
             ISlackNotifier slackNotifier,
             IApiMonitoringObjectRepository apiMonitoringObjectRepository,
-            IApiHealthCheckErrorRepository apiHealthCheckErrorRepository)
+            IApiHealthCheckErrorRepository apiHealthCheckErrorRepository,
+            IIsAliveService isAliveService,
+            ILog log)
         {
+            _log = log;
+            _monitoringService = monitoringService;
             _settings = settings;
-            _monitoringObjectRepository = monitoringObjectRepository;
             _slackNotifier = slackNotifier;
-            _apiMonitoringObjectRepository = apiMonitoringObjectRepository;
-            _httpClient = new HttpClient();
+            _isAliveService = isAliveService;
             _apiHealthCheckErrorRepository = apiHealthCheckErrorRepository;
+            _apiMonitoringObjectRepository = apiMonitoringObjectRepository;
         }
 
         public async Task Execute()
         {
             DateTime now = DateTime.UtcNow;
-            IEnumerable<MonitoringObject> objects = await _monitoringObjectRepository.GetAll();
-            List<MonitoringObject> fireNotificationsFor = new List<MonitoringObject>();
+            IEnumerable<IMonitoringObject> objects = (await _monitoringService.GetCurrentSnapshot())?.
+                Where(@object => !(@object.SkipCheckUntil > now));
+            IEnumerable<IMonitoringObject> jobsMonitoring = objects.Where(x => string.IsNullOrEmpty(x.Url));
+            IEnumerable<IMonitoringObject> apisMonitoring = objects.Except(jobsMonitoring);
 
-            foreach (var @object in objects)
+            await CheckJobs(jobsMonitoring);
+            await CheckAPIs(apisMonitoring);
+        }
+
+        #region Private
+
+        private async Task CheckJobs(IEnumerable<IMonitoringObject> jobsMonitoring)
+        {
+            DateTime now = DateTime.UtcNow;
+            List<IMonitoringObject> fireNotificationsFor = new List<IMonitoringObject>();
+
+            foreach (var @object in jobsMonitoring)
             {
-                if (@object.SkipCheckUntil > now)
-                {
-                    continue;
-                }
-
                 if (now - @object.LastTime > TimeSpan.FromSeconds(_settings.MaxTimeDifferenceInSeconds))
                 {
                     fireNotificationsFor.Add(@object);
@@ -61,67 +74,90 @@ namespace Services
                 string formattedDiff = timeDiff.ToString(@"hh\:mm\:ss");
                 await _slackNotifier.ErrorAsync($"No updates from {service.ServiceName} within {formattedDiff}!");
             });
-
-            await CheckAPIs();
         }
 
-        private async Task CheckAPIs()
+        private async Task CheckAPIs(IEnumerable<IMonitoringObject> apisMonitoring)
         {
-            IEnumerable<IApiMonitoringObject> allApis = await _apiMonitoringObjectRepository.GetAll();
-            List<Task<HttpResponseMessage>> runningChecks = new List<Task<HttpResponseMessage>>(allApis.Count());
-            List<ApiHealthCheckError> failedChecks = new List<ApiHealthCheckError>(allApis.Count());
-            IDictionary<Task<HttpResponseMessage>, string> requestServiceMapping = new Dictionary<Task<HttpResponseMessage>, string>();
+            List<Task<IApiStatusObject>> pendingHttpChecks = new List<Task<IApiStatusObject>>(apisMonitoring.Count());
+            List<ApiHealthCheckError> failedChecks = new List<ApiHealthCheckError>(apisMonitoring.Count());
+            IDictionary<string, IMonitoringObject> serviceNameMonitoringObjectMapping = apisMonitoring.ToDictionary(x => x.ServiceName);
+            IDictionary<Task<IApiStatusObject>, IMonitoringObject> requestServiceMapping = new Dictionary<Task<IApiStatusObject>, IMonitoringObject>();
             DateTime now = DateTime.UtcNow;
 
-            foreach (var api in allApis)
+            foreach (var api in apisMonitoring)
             {
                 CancellationTokenSource cts = new CancellationTokenSource(5500);
 
-                Task<HttpResponseMessage> task = _httpClient.GetAsync(api.Url, cts.Token);
-                runningChecks.Add(task);
-                requestServiceMapping[task] = api.ServiceName;
+                Task<IApiStatusObject> task = _isAliveService.GetStatus(api.Url, cts.Token);
+                pendingHttpChecks.Add(task);
+                requestServiceMapping[task] = api;
+                api.LastTime = now;
             }
 
-            foreach (var item in runningChecks)
+            List<Task> recipientChecks = new List<Task>(apisMonitoring.Count());
+            foreach (var item in pendingHttpChecks)
             {
-                string serviceName = requestServiceMapping[item];
+                string serviceName = requestServiceMapping[item].ServiceName;
 
-                try
+                var task = Task.Run(async () =>
                 {
-                    await item;
-                }
-                catch (OperationCanceledException e)
-                {
-                    failedChecks.Add(GenerateError(now, "Timeout", serviceName));
-                }
-                catch (Exception e)
-                {
-                    failedChecks.Add(GenerateError(now, e.Message, serviceName));
-                }
+                    try
+                    {
+                        IApiStatusObject statusObject = await item;
+                        requestServiceMapping[item].Version = statusObject.Version;
+                        requestServiceMapping[item].LastTime = now;
+                    }
+                    catch (OperationCanceledException e)
+                    {
+                        GenerateError(failedChecks, now, "Timeout", serviceName);
+                    }
+                    catch (SimpleHttpResponseException e)
+                    {
+                        GenerateError(failedChecks, now, e.StatusCode.ToString(), serviceName);
+                    }
+                    catch (Exception e)
+                    {
+                        await _log.WriteErrorAsync("MonitoringJob", "CheckAPIs", "", e, DateTime.UtcNow);
+                        GenerateError(failedChecks, now, $"Unexpected exception: {e.Message}", serviceName);
+                    }
+                });
 
-                if (!item.IsFaulted && !item.IsCanceled
-                    && item.Result != null && !item.Result.IsSuccessStatusCode)
-                {
-                    failedChecks.Add(GenerateError(now, item.Result.StatusCode.ToString(), serviceName));
-                }
+                recipientChecks.Add(task);
             }
+
+            await Task.WhenAll(recipientChecks);
 
             foreach (var error in failedChecks)
             {
+                IMonitoringObject mObject = serviceNameMonitoringObjectMapping[error.ServiceName];
                 await _apiHealthCheckErrorRepository.Insert((IApiHealthCheckError)error);
+                await _slackNotifier.ErrorAsync($"Service url check failed for {error.ServiceName}(URL:{mObject.Url}), reason: {error.LastError}!");
+            }
 
-                await _slackNotifier.ErrorAsync($"Service url check failed for {error.ServiceName}, reason: {error.LastError}!");
+            foreach (var api in apisMonitoring)
+            {
+                await _apiMonitoringObjectRepository.Insert(api);
             }
         }
 
-        private static ApiHealthCheckError GenerateError(DateTime now, string errorMessage, string serviceName)
+        private object failedChecksLock = new object();
+        private ILog _log;
+
+        private void GenerateError( List<ApiHealthCheckError> errors, DateTime now, string errorMessage, string serviceName)
         {
-            return new ApiHealthCheckError()
+            var  error = new ApiHealthCheckError()
             {
                 Date = now,
                 LastError = errorMessage,
                 ServiceName = serviceName,
             };
+
+            lock (failedChecksLock)
+            {
+                errors.Add(error);
+            }
         }
+
+        #endregion
     }
 }

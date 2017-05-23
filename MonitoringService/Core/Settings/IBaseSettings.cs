@@ -9,6 +9,7 @@ namespace Core.Settings
         public DB Db { get; set; }
         public int MaxTimeDifferenceInSeconds { get; set; }
         public string SlackQueueName { get; set; }
+        public int MonitoringJobFrequency { get; set; }
     }
 
     public interface IBaseSettings
@@ -16,6 +17,7 @@ namespace Core.Settings
         DB Db { get; set; }
         int MaxTimeDifferenceInSeconds { get; set; }
         string SlackQueueName { get; set; }
+        int MonitoringJobFrequency { get; set; }
     }
 
     public class DB

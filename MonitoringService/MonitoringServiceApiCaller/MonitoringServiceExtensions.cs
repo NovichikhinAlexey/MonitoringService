@@ -11,7 +11,7 @@ namespace Lykke.MonitoringServiceApiCaller
     /// <summary>
     /// Extension methods for MonitoringService.
     /// </summary>
-    public static partial class MonitoringServiceExtensions
+    internal static partial class MonitoringServiceExtensions
     {
             /// <param name='operations'>
             /// The operations group for this extension method.
@@ -30,6 +30,32 @@ namespace Lykke.MonitoringServiceApiCaller
             public static async Task<ListDataMonitoringObjectModel> ApiMonitoringGetAsync(this IMonitoringService operations, CancellationToken cancellationToken = default(CancellationToken))
             {
                 using (var _result = await operations.ApiMonitoringGetWithHttpMessagesAsync(null, cancellationToken).ConfigureAwait(false))
+                {
+                    return _result.Body;
+                }
+            }
+
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
+            /// <param name='serviceName'>
+            /// </param>
+            public static MonitoringObjectModel ApiMonitoringByServiceNameGet(this IMonitoringService operations, string serviceName)
+            {
+                return operations.ApiMonitoringByServiceNameGetAsync(serviceName).GetAwaiter().GetResult();
+            }
+
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
+            /// <param name='serviceName'>
+            /// </param>
+            /// <param name='cancellationToken'>
+            /// The cancellation token.
+            /// </param>
+            public static async Task<MonitoringObjectModel> ApiMonitoringByServiceNameGetAsync(this IMonitoringService operations, string serviceName, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                using (var _result = await operations.ApiMonitoringByServiceNameGetWithHttpMessagesAsync(serviceName, null, cancellationToken).ConfigureAwait(false))
                 {
                     return _result.Body;
                 }
@@ -102,6 +128,29 @@ namespace Lykke.MonitoringServiceApiCaller
             public static async Task ApiMonitoringUnmutePostAsync(this IMonitoringService operations, MonitoringObjectUnmuteModel model = default(MonitoringObjectUnmuteModel), CancellationToken cancellationToken = default(CancellationToken))
             {
                 (await operations.ApiMonitoringUnmutePostWithHttpMessagesAsync(model, null, cancellationToken).ConfigureAwait(false)).Dispose();
+            }
+
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
+            /// <param name='serviceName'>
+            /// </param>
+            public static void ApiMonitoringRemoveByServiceNameDelete(this IMonitoringService operations, string serviceName)
+            {
+                operations.ApiMonitoringRemoveByServiceNameDeleteAsync(serviceName).GetAwaiter().GetResult();
+            }
+
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
+            /// <param name='serviceName'>
+            /// </param>
+            /// <param name='cancellationToken'>
+            /// The cancellation token.
+            /// </param>
+            public static async Task ApiMonitoringRemoveByServiceNameDeleteAsync(this IMonitoringService operations, string serviceName, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                (await operations.ApiMonitoringRemoveByServiceNameDeleteWithHttpMessagesAsync(serviceName, null, cancellationToken).ConfigureAwait(false)).Dispose();
             }
 
             /// <param name='operations'>

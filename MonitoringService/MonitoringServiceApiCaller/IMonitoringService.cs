@@ -40,6 +40,16 @@ namespace Lykke.MonitoringServiceApiCaller
         /// </param>
         Task<HttpOperationResponse<ListDataMonitoringObjectModel>> ApiMonitoringGetWithHttpMessagesAsync(Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken));
 
+        /// <param name='serviceName'>
+        /// </param>
+        /// <param name='customHeaders'>
+        /// The headers that will be added to request.
+        /// </param>
+        /// <param name='cancellationToken'>
+        /// The cancellation token.
+        /// </param>
+        Task<HttpOperationResponse<MonitoringObjectModel>> ApiMonitoringByServiceNameGetWithHttpMessagesAsync(string serviceName, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken));
+
         /// <param name='model'>
         /// </param>
         /// <param name='customHeaders'>
@@ -69,6 +79,16 @@ namespace Lykke.MonitoringServiceApiCaller
         /// The cancellation token.
         /// </param>
         Task<HttpOperationResponse> ApiMonitoringUnmutePostWithHttpMessagesAsync(MonitoringObjectUnmuteModel model = default(MonitoringObjectUnmuteModel), Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <param name='serviceName'>
+        /// </param>
+        /// <param name='customHeaders'>
+        /// The headers that will be added to request.
+        /// </param>
+        /// <param name='cancellationToken'>
+        /// The cancellation token.
+        /// </param>
+        Task<HttpOperationResponse> ApiMonitoringRemoveByServiceNameDeleteWithHttpMessagesAsync(string serviceName, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <param name='customHeaders'>
         /// The headers that will be added to request.
