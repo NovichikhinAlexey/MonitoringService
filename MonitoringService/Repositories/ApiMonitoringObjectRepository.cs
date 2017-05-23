@@ -57,28 +57,28 @@ namespace Repositories
             _table = table;
         }
 
-        public async Task<IEnumerable<IMonitoringObject>> GetAll()
+        public async Task<IEnumerable<IMonitoringObject>> GetAllAsync()
         {
             IEnumerable<IMonitoringObject> allApi = await _table.GetDataAsync(ApiMonitoringObjectEntity.GetPartitionKey());
 
             return allApi;
         }
 
-        public async Task<IMonitoringObject> GetByName(string serviceName)
+        public async Task<IMonitoringObject> GetByNameAsync(string serviceName)
         {
             ApiMonitoringObjectEntity mObject = await _table.GetDataAsync(ApiMonitoringObjectEntity.GetPartitionKey(), serviceName);
 
             return mObject;
         }
 
-        public async Task Insert(IMonitoringObject aObject)
+        public async Task InsertAsync(IMonitoringObject aObject)
         {
             var entity = ApiMonitoringObjectEntity.GetApiMonitoringObjectEntity(aObject);
 
             await _table.InsertOrReplaceAsync(entity);
         }
 
-        public async Task Remove(string serviceName)
+        public async Task RemoveAsync(string serviceName)
         {
             await _table.DeleteIfExistAsync(ApiMonitoringObjectEntity.GetPartitionKey(), serviceName);
         }

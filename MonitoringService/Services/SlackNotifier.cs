@@ -19,7 +19,7 @@ namespace Services
         public SlackNotifier(IQueueFactory queueFactory, IBaseSettings settings)
         {
             _settings = settings;
-            _queue = queueFactory.GetQueue(settings.SlackQueueName);
+            _queue = queueFactory.GetQueue();
         }
 
         public async Task WarningAsync(string message)

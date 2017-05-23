@@ -7,6 +7,6 @@ namespace Core.Repositories
 {
     public interface IQueueFactory
     {
-        IQueueExt GetQueue(string queueName);
+        IQueueExt GetQueue();
     }
 }

@@ -9,8 +9,8 @@ namespace Core.Services
 {
     public interface IUrlMonitoringService
     {
-        Task Monitor(IMonitoringObject aObject);
+        Task MonitorAsync(IMonitoringObject aObject);
 
-        Task<IEnumerable<IMonitoringObject>> GetAll();
+        Task<IEnumerable<IMonitoringObject>> GetAllAsync();
     }
 }

@@ -33,9 +33,10 @@ namespace MonitoringService
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             var settings = GetSettings(Configuration);
-            services.AddSingleton<IBaseSettings>(settings);
-            services.RegisterAzureLogs(settings);
-            services.RegisterAzureStorages(settings);
+            services.AddSingleton<IBaseSettings>(settings.MonitoringService);
+            services.AddSingleton<ISlackNotificationSettings>(settings.SlackNotifications);
+            services.RegisterAzureLogs(settings.MonitoringService);
+            services.RegisterAzureStorages(settings.MonitoringService);
             services.RegDependencies();
             services.AddSwaggerGen(c =>
             {
@@ -74,7 +75,7 @@ namespace MonitoringService
             });
         }
 
-        static BaseSettings GetSettings(IConfigurationRoot configuration)
+        static SettingsWrapper GetSettings(IConfigurationRoot configuration)
         {
             var connectionString = configuration.GetConnectionString("ConnectionString");
             if (string.IsNullOrWhiteSpace(connectionString))
@@ -82,7 +83,7 @@ namespace MonitoringService
 
             var settings = GeneralSettingsReader.ReadGeneralSettings<SettingsWrapper>(connectionString);
 
-            return settings.MonitoringService;
+            return settings;
         }
     }
 }

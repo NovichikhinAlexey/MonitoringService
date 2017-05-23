@@ -23,7 +23,7 @@ namespace Services
             _httpClient = new HttpClient(); 
         }
 
-        public async Task<IApiStatusObject> GetStatus(string url, CancellationToken cancellationToken)
+        public async Task<IApiStatusObject> GetStatusAsync(string url, CancellationToken cancellationToken)
         {
             IApiStatusObject statusObject = null;
             var response = await _httpClient.GetAsync(url, cancellationToken);

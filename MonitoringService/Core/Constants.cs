@@ -10,5 +10,6 @@ namespace Core
 
         public const string ApiMonitoringObjectTable = "ApiMonitoringObject";
         public const string ApiHealthCheckErrorTable = "ApiHealthCheckError";
+        public const string BackUpBlobName = "BackUpMonitoringService";
     }
 }

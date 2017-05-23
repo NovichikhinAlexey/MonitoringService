@@ -9,6 +9,6 @@ namespace Core.Services
 {
     public interface IIsAliveService
     {
-        Task<IApiStatusObject> GetStatus(string url, CancellationToken cancellationToken);
+        Task<IApiStatusObject> GetStatusAsync(string url, CancellationToken cancellationToken);
     }
 }

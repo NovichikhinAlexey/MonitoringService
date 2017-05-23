@@ -22,8 +22,8 @@ namespace Core.Repositories
 
     public interface IApiHealthCheckErrorRepository
     {
-        Task<IApiHealthCheckError> GetById(string serviceName);
+        Task<IApiHealthCheckError> GetByIdAsync(string serviceName);
 
-        Task Insert(IApiHealthCheckError service);
+        Task InsertAsync(IApiHealthCheckError service);
     }
 }

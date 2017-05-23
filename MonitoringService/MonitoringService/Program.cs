@@ -13,6 +13,7 @@ using System.Threading;
 using System.Runtime.Loader;
 using Common.Log;
 using Core.Settings;
+using Core.Services;
 
 namespace MonitoringService
 {
@@ -28,12 +29,13 @@ namespace MonitoringService
                 .UseApplicationInsights()
                 .Build();
 
+            var backUpService = Startup.ServiceProvider.GetService<IBackUpService>();
             var settings = Startup.ServiceProvider.GetService<IBaseSettings>();
             var log = Startup.ServiceProvider.GetService<ILog>();
             IMonitoringJob job = Startup.ServiceProvider.GetService<IMonitoringJob>();
             var end = new ManualResetEvent(false);
             CancellationTokenSource cts = new CancellationTokenSource();
-
+            //backUpService.RestoreBackupAsync().Wait();
             Task.Run(async () => 
             {
                 int secondsDelay = settings.MonitoringJobFrequency;
@@ -64,7 +66,7 @@ namespace MonitoringService
             host.Run();
 
             log.WriteInfoAsync("MonitoringService", "Program", "Main", "Monitoring Service has been stopped", DateTime.UtcNow).Wait();
-
+            //backUpService.CreateBackupAsync().Wait();
             end.Set();
         }
     }

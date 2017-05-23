@@ -88,7 +88,7 @@ namespace Services
             {
                 CancellationTokenSource cts = new CancellationTokenSource(5500);
 
-                Task<IApiStatusObject> task = _isAliveService.GetStatus(api.Url, cts.Token);
+                Task<IApiStatusObject> task = _isAliveService.GetStatusAsync(api.Url, cts.Token);
                 pendingHttpChecks.Add(task);
                 requestServiceMapping[task] = api;
                 api.LastTime = now;
@@ -130,13 +130,13 @@ namespace Services
             foreach (var error in failedChecks)
             {
                 IMonitoringObject mObject = serviceNameMonitoringObjectMapping[error.ServiceName];
-                await _apiHealthCheckErrorRepository.Insert((IApiHealthCheckError)error);
+                await _apiHealthCheckErrorRepository.InsertAsync((IApiHealthCheckError)error);
                 await _slackNotifier.ErrorAsync($"Service url check failed for {error.ServiceName}(URL:{mObject.Url}), reason: {error.LastError}!");
             }
 
             foreach (var api in apisMonitoring)
             {
-                await _apiMonitoringObjectRepository.Insert(api);
+                await _apiMonitoringObjectRepository.InsertAsync(api);
             }
         }
 

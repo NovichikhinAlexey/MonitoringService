@@ -8,9 +8,9 @@ namespace Core.Repositories
 {
     public interface IApiMonitoringObjectRepository
     {
-        Task<IEnumerable<IMonitoringObject>> GetAll();
-        Task Insert(IMonitoringObject aObject);
-        Task<IMonitoringObject> GetByName(string serviceName);
-        Task Remove(string serviceName);
+        Task<IEnumerable<IMonitoringObject>> GetAllAsync();
+        Task InsertAsync(IMonitoringObject aObject);
+        Task<IMonitoringObject> GetByNameAsync(string serviceName);
+        Task RemoveAsync(string serviceName);
     }
 }

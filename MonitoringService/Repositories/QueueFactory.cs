@@ -7,16 +7,16 @@ namespace Repositories
 {
     public class QueueFactory : IQueueFactory
     {
-        private readonly IBaseSettings _settings;
+        private readonly ISlackNotificationSettings _settings;
 
-        public QueueFactory(IBaseSettings settings)
+        public QueueFactory(ISlackNotificationSettings settings)
         {
             _settings = settings;
         }
 
-        public IQueueExt GetQueue(string queueName)
+        public IQueueExt GetQueue()
         {
-            return new AzureQueueExt(_settings.Db.SlackConnectionString, queueName);
+            return new AzureQueueExt(_settings.AzureQueue.ConnectionString, _settings.AzureQueue.QueueName);
         }
     }
 }

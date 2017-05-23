@@ -25,7 +25,7 @@ namespace MonitoringService.Controllers
         [ProducesResponseType(typeof(ListData<UrlMonitoringObjectModel>), 200)]
         public async Task<IActionResult> Get()
         {
-            var snapshot = await _monitoringService.GetAll();
+            var snapshot = await _monitoringService.GetAllAsync();
             var model = snapshot.Select(x => new UrlMonitoringObjectModel()
             {
                 ServiceName = x.ServiceName,
@@ -45,7 +45,7 @@ namespace MonitoringService.Controllers
                 Url = model.Url
             };
 
-            await _monitoringService.Monitor(mappedModel);
+            await _monitoringService.MonitorAsync(mappedModel);
         }
     }
 }

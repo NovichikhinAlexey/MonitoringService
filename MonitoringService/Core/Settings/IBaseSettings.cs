@@ -8,21 +8,35 @@ namespace Core.Settings
     {
         public DB Db { get; set; }
         public int MaxTimeDifferenceInSeconds { get; set; }
-        public string SlackQueueName { get; set; }
         public int MonitoringJobFrequency { get; set; }
+    }
+
+    public class SlackNotificationSettings : ISlackNotificationSettings
+    {
+        public AzureQueue AzureQueue { get; set; }
+    }
+
+    public class AzureQueue
+    {
+      public string ConnectionString { get; set; }
+      public string QueueName { get; set; }
+    }
+
+    public interface ISlackNotificationSettings
+    {
+        AzureQueue AzureQueue { get; set; }
     }
 
     public interface IBaseSettings
     {
         DB Db { get; set; }
         int MaxTimeDifferenceInSeconds { get; set; }
-        string SlackQueueName { get; set; }
         int MonitoringJobFrequency { get; set; }
     }
 
     public class DB
     {
-        public string SlackConnectionString { get; set; }
-        public string SharedConnectionString { get; set; }
+        public string DataConnectionString { get; set; }
+        public string LogsConnectionString { get; set; }
     }
 }

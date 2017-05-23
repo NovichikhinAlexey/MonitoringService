@@ -17,12 +17,12 @@ namespace Services
             _monitoringDictionary = new Dictionary<string, IMonitoringObject>();
         }
 
-        public async Task<IEnumerable<IMonitoringObject>> GetAll()
+        public async Task<IEnumerable<IMonitoringObject>> GetAllAsync()
         {
             return _monitoringDictionary.Values;
         }
 
-        public async Task<IMonitoringObject> GetByName(string serviceName)
+        public async Task<IMonitoringObject> GetByNameAsync(string serviceName)
         {
             IMonitoringObject mObject;
             _monitoringDictionary.TryGetValue(serviceName, out mObject);
@@ -30,12 +30,12 @@ namespace Services
             return mObject;
         }
 
-        public async Task Insert(IMonitoringObject mObject)
+        public async Task InsertAsync(IMonitoringObject mObject)
         {
             _monitoringDictionary[mObject.ServiceName] = mObject;
         }
 
-        public async Task Remove(string serviceName)
+        public async Task RemoveAsync(string serviceName)
         {
             _monitoringDictionary.Remove(serviceName);
         }

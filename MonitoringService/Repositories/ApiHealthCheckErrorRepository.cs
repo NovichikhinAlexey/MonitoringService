@@ -53,14 +53,14 @@ namespace Repositories
             _table = table;
         }
 
-        public async Task<IApiHealthCheckError> GetById(string serviceName)
+        public async Task<IApiHealthCheckError> GetByIdAsync(string serviceName)
         {
             IApiHealthCheckError error = await _table.GetDataAsync(ApiHealthCheckErrorEntity.GetPartitionKey(), serviceName);
 
             return error;
         }
 
-        public async Task Insert(IApiHealthCheckError error)
+        public async Task InsertAsync(IApiHealthCheckError error)
         {
             var entity = ApiHealthCheckErrorEntity.GetEntity(error);
 

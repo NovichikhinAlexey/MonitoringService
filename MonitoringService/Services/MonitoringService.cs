@@ -22,8 +22,8 @@ namespace Services
 
         public async Task<IMonitoringObject> GetByName(string serviceName)
         {
-            IMonitoringObject mObject = await _monitorObjectRepository.GetByName(serviceName) ??
-                await _apiMonitoringObjectRepository.GetByName(serviceName);
+            IMonitoringObject mObject = await _monitorObjectRepository.GetByNameAsync(serviceName) ??
+                await _apiMonitoringObjectRepository.GetByNameAsync(serviceName);
 
             return mObject;
         }
@@ -31,8 +31,8 @@ namespace Services
         public async Task<IEnumerable<IMonitoringObject>> GetCurrentSnapshot()
         {
             var result = new List<IMonitoringObject>();
-            var inMemmory = await _monitorObjectRepository.GetAll();
-            var azure = await _apiMonitoringObjectRepository.GetAll();
+            var inMemmory = await _monitorObjectRepository.GetAllAsync();
+            var azure = await _apiMonitoringObjectRepository.GetAllAsync();
             result.AddRange(inMemmory);
             result.AddRange(azure);
 
@@ -48,13 +48,13 @@ namespace Services
 
         public async Task Ping(IMonitoringObject mObject)
         {
-            await _monitorObjectRepository.Insert(mObject);
+            await _monitorObjectRepository.InsertAsync(mObject);
         }
 
         public async Task Remove(string serviceName)
         {
-            await _monitorObjectRepository.Remove(serviceName);
-            await _apiMonitoringObjectRepository.Remove(serviceName);
+            await _monitorObjectRepository.RemoveAsync(serviceName);
+            await _apiMonitoringObjectRepository.RemoveAsync(serviceName);
         }
 
         public async Task Unmute(string serviceName)
@@ -68,11 +68,11 @@ namespace Services
         {
             if (string.IsNullOrEmpty(mObject.Url))
             {
-                await _monitorObjectRepository.Insert(mObject);
+                await _monitorObjectRepository.InsertAsync(mObject);
             }
             else
             {
-                await _apiMonitoringObjectRepository.Insert(mObject);
+                await _apiMonitoringObjectRepository.InsertAsync(mObject);
             }
         }
     }

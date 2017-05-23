@@ -94,7 +94,7 @@ namespace MonitoringService.Test
 
             _mockMonitoringService.Setup(x => x.GetCurrentSnapshot()).Returns(Task.FromResult((IEnumerable<IMonitoringObject>)repository));
             _mockBaseSettings.Setup(x => x.MaxTimeDifferenceInSeconds).Returns(ExpirationDateInSeconds);
-            _mockIsAliveService.Setup(x => x.GetStatus(url, It.IsAny<CancellationToken>()))
+            _mockIsAliveService.Setup(x => x.GetStatusAsync(url, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromException<IApiStatusObject>(new OperationCanceledException()));
             var monitoringJob = GetMonitorJob();
 

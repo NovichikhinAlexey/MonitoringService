@@ -8,9 +8,9 @@ namespace Core.Repositories
 {
     public interface IMonitoringObjectRepository
     {
-        Task Insert(IMonitoringObject mObject);
-        Task<IEnumerable<IMonitoringObject>> GetAll();
-        Task<IMonitoringObject> GetByName(string serviceName);
-        Task Remove(string serviceName);
+        Task InsertAsync(IMonitoringObject mObject);
+        Task<IEnumerable<IMonitoringObject>> GetAllAsync();
+        Task<IMonitoringObject> GetByNameAsync(string serviceName);
+        Task RemoveAsync(string serviceName);
     }
 }
