@@ -30,7 +30,7 @@ namespace Repositories
                 using (StreamReader reader = new StreamReader(stream, Encoding.UTF8))
                 {
                     string result = await reader.ReadToEndAsync();
-                    IBackUp backUp = Newtonsoft.Json.JsonConvert.DeserializeObject<IBackUp>(result);
+                    IBackUp backUp = Newtonsoft.Json.JsonConvert.DeserializeObject<BackUp>(result);
 
                     return backUp;
                 }

@@ -20,6 +20,7 @@ namespace Services
         private const string _backUpKey = "backup";
         private readonly IBackUpRepository _backUpRepository;
         private readonly IMonitoringObjectRepository _monitoringObjectRepository;
+        private readonly ILog _log;
 
         public BackUpService(IMonitoringObjectRepository monitoringObjectRepository,
             IBackUpRepository backUpRepository,
@@ -27,10 +28,12 @@ namespace Services
         {
             _monitoringObjectRepository = monitoringObjectRepository;
             _backUpRepository = backUpRepository;
+            _log = log;
         }
 
         public async Task CreateBackupAsync()
         {
+            await _log.WriteInfoAsync("BackUpService", "CreateBackupAsync", "","Creating a backup", DateTime.UtcNow);
             List<IMonitoringObject> allObjects = (await _monitoringObjectRepository.GetAllAsync())?.ToList();
 
             string serialized = Newtonsoft.Json.JsonConvert.SerializeObject(allObjects);

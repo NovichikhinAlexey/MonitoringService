@@ -11,6 +11,7 @@ using Swashbuckle.AspNetCore.Swagger;
 using Core.Settings;
 using MonitoringService.Dependencies;
 using AzureRepositories;
+using Core.Services;
 
 namespace MonitoringService
 {
@@ -50,8 +51,14 @@ namespace MonitoringService
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IApplicationLifetime applicationLifetime)
         {
+            applicationLifetime.ApplicationStopping.Register(() => 
+            {
+                var backupService = ServiceProvider.GetService<IBackUpService>();
+
+                backupService.CreateBackupAsync();
+            });
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 

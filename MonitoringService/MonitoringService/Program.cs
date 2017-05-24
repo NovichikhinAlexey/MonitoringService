@@ -35,7 +35,7 @@ namespace MonitoringService
             IMonitoringJob job = Startup.ServiceProvider.GetService<IMonitoringJob>();
             var end = new ManualResetEvent(false);
             CancellationTokenSource cts = new CancellationTokenSource();
-            //backUpService.RestoreBackupAsync().Wait();
+            backUpService.RestoreBackupAsync().Wait();
             Task.Run(async () => 
             {
                 int secondsDelay = settings.MonitoringJobFrequency;
@@ -66,7 +66,7 @@ namespace MonitoringService
             host.Run();
 
             log.WriteInfoAsync("MonitoringService", "Program", "Main", "Monitoring Service has been stopped", DateTime.UtcNow).Wait();
-            //backUpService.CreateBackupAsync().Wait();
+            Thread.Sleep(1000);
             end.Set();
         }
     }
