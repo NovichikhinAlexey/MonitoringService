@@ -20,7 +20,7 @@ namespace Services
         public IsAliveService(ILog log)
         {
             _log = log;
-            _httpClient = new HttpClient(); 
+            _httpClient = new HttpClient();
         }
 
         public async Task<IApiStatusObject> GetStatusAsync(string url, CancellationToken cancellationToken)
@@ -34,12 +34,16 @@ namespace Services
                 var content = await response.Content.ReadAsStringAsync();
                 statusObject = Newtonsoft.Json.JsonConvert.DeserializeObject<ApiStatusObject>(content);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 await _log.WriteErrorAsync("IsAliveService", "GetStatus", "", e, DateTime.UtcNow);
             }
 
-            return statusObject;
+            return statusObject ?? new ApiStatusObject()
+            {
+                Env = "unknown",
+                Version = "undefined"
+            };
         }
     }
 }
