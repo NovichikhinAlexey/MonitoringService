@@ -41,7 +41,6 @@ namespace Services
 
             return statusObject ?? new ApiStatusObject()
             {
-                Env = "unknown",
                 Version = "undefined"
             };
         }
