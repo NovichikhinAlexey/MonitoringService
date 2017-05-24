@@ -41,7 +41,7 @@ namespace Repositories
                 PartitionKey = GetPartitionKey(),
                 ServiceName = mObject.ServiceName,
                 Url = mObject.Url,
-                LastTime = mObject.LastTime,
+                LastTime = mObject.LastTime != DateTime.MinValue ? mObject.LastTime : DateTime.UtcNow,
                 SkipCheckUntil = mObject.SkipCheckUntil,
                 Version = mObject.Version
             };

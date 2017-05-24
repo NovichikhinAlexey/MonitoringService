@@ -18,6 +18,7 @@ namespace Services
 
         public async Task MonitorAsync(IMonitoringObject aObject)
         {
+            aObject.LastTime = DateTime.UtcNow;
             await _apiMonitoringObjectRepository.InsertAsync(aObject);
         }
 
