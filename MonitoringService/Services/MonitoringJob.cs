@@ -18,7 +18,6 @@ namespace Services
     public class MonitoringJob : IMonitoringJob
     {
         private readonly IMonitoringService _monitoringService;
-        private readonly IApiMonitoringObjectRepository _apiMonitoringObjectRepository;
         private readonly IBaseSettings _settings;
         private readonly ISlackNotifier _slackNotifier;
         private IApiHealthCheckErrorRepository _apiHealthCheckErrorRepository;
@@ -38,26 +37,12 @@ namespace Services
             _slackNotifier = slackNotifier;
             _isAliveService = isAliveService;
             _apiHealthCheckErrorRepository = apiHealthCheckErrorRepository;
-            _apiMonitoringObjectRepository = apiMonitoringObjectRepository;
         }
 
-        public async Task Execute()
+        public async Task CheckJobs()
         {
             DateTime now = DateTime.UtcNow;
-            IEnumerable<IMonitoringObject> objects = (await _monitoringService.GetCurrentSnapshot())?.
-                Where(@object => !(@object.SkipCheckUntil > now));
-            IEnumerable<IMonitoringObject> jobsMonitoring = objects.Where(x => string.IsNullOrEmpty(x.Url));
-            IEnumerable<IMonitoringObject> apisMonitoring = objects.Except(jobsMonitoring);
-
-            await CheckJobs(jobsMonitoring);
-            await CheckAPIs(apisMonitoring);
-        }
-
-        #region Private
-
-        private async Task CheckJobs(IEnumerable<IMonitoringObject> jobsMonitoring)
-        {
-            DateTime now = DateTime.UtcNow;
+            IEnumerable<IMonitoringObject> jobsMonitoring = (await GetMonitoringObjectsForProcessing(x => string.IsNullOrEmpty(x.Url)))?.ToList();
             List<IMonitoringObject> fireNotificationsFor = new List<IMonitoringObject>();
 
             foreach (var @object in jobsMonitoring)
@@ -76,8 +61,9 @@ namespace Services
             });
         }
 
-        private async Task CheckAPIs(IEnumerable<IMonitoringObject> apisMonitoring)
+        public async Task CheckAPIs()
         {
+            IEnumerable<IMonitoringObject> apisMonitoring = (await GetMonitoringObjectsForProcessing(x => !string.IsNullOrEmpty(x.Url)))?.ToList();
             List<Task<IApiStatusObject>> pendingHttpChecks = new List<Task<IApiStatusObject>>(apisMonitoring.Count());
             List<ApiHealthCheckError> failedChecks = new List<ApiHealthCheckError>(apisMonitoring.Count());
             IDictionary<string, IMonitoringObject> serviceNameMonitoringObjectMapping = apisMonitoring.ToDictionary(x => x.ServiceName);
@@ -136,9 +122,11 @@ namespace Services
 
             foreach (var api in apisMonitoring)
             {
-                await _apiMonitoringObjectRepository.InsertAsync(api);
+                await _monitoringService.Ping(api);
             }
         }
+
+        #region Private
 
         private object failedChecksLock = new object();
         private ILog _log;
@@ -156,6 +144,16 @@ namespace Services
             {
                 errors.Add(error);
             }
+        }
+
+        private async Task<IEnumerable<IMonitoringObject>> GetMonitoringObjectsForProcessing(Func<IMonitoringObject, bool> filter)
+        {
+            var now = DateTime.UtcNow;
+            Func<IMonitoringObject, bool> decoratedFilter = (@object) => !(@object.SkipCheckUntil > now) && filter(@object);
+            var allMonitoringObjects = await _monitoringService.GetCurrentSnapshot();
+            var filteredObjects = allMonitoringObjects.Where(@object => decoratedFilter(@object));
+
+            return filteredObjects;
         }
 
         #endregion

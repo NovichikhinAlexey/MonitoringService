@@ -7,6 +7,7 @@ namespace Core.Jobs
 {
     public interface IMonitoringJob
     {
-        Task Execute();
+        Task CheckAPIs();
+        Task CheckJobs();
     }
 }

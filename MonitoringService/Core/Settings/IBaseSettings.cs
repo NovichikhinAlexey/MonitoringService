@@ -8,7 +8,8 @@ namespace Core.Settings
     {
         public DB Db { get; set; }
         public int MaxTimeDifferenceInSeconds { get; set; }
-        public int MonitoringJobFrequency { get; set; }
+        public int MonitoringJobFrequencyInSeconds { get; set; }
+        public int MonitoringApiFrequencyInSeconds { get; set; }
     }
 
     public class SlackNotificationSettings : ISlackNotificationSettings
@@ -31,7 +32,8 @@ namespace Core.Settings
     {
         DB Db { get; set; }
         int MaxTimeDifferenceInSeconds { get; set; }
-        int MonitoringJobFrequency { get; set; }
+        int MonitoringJobFrequencyInSeconds { get; set; }
+        int MonitoringApiFrequencyInSeconds { get; set; }
     }
 
     public class DB

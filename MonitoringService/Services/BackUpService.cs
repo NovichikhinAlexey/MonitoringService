@@ -18,42 +18,66 @@ namespace Services
     public class BackUpService : IBackUpService
     {
         private const string _backUpKey = "backup";
-        private readonly IBackUpRepository _backUpRepository;
+        //private readonly IBackUpRepository _backUpRepository;
         private readonly IMonitoringObjectRepository _monitoringObjectRepository;
         private readonly ILog _log;
+        private readonly IApiMonitoringObjectRepository _apiMonitoringObjectRepository;
 
         public BackUpService(IMonitoringObjectRepository monitoringObjectRepository,
+            IApiMonitoringObjectRepository apiMonitoringObjectRepository,
             IBackUpRepository backUpRepository,
             ILog log)
         {
             _monitoringObjectRepository = monitoringObjectRepository;
-            _backUpRepository = backUpRepository;
+            _apiMonitoringObjectRepository = apiMonitoringObjectRepository;
+            //ackUpRepository = backUpRepository;
             _log = log;
         }
 
         public async Task CreateBackupAsync()
         {
             await _log.WriteInfoAsync("BackUpService", "CreateBackupAsync", "","Creating a backup", DateTime.UtcNow);
-            List<IMonitoringObject> allObjects = (await _monitoringObjectRepository.GetAllAsync())?.ToList();
+            var all = await _monitoringObjectRepository.GetAllAsync();
+            var tasks = new List<Task>(all.Count());
 
-            string serialized = Newtonsoft.Json.JsonConvert.SerializeObject(allObjects);
-            await _backUpRepository.InsertAsync(new BackUp()
+            foreach (var item in all)
             {
-                Key = _backUpKey,
-                SerializedObject = serialized
-            });
+                var task = _apiMonitoringObjectRepository.InsertAsync(item);
+                tasks.Add(task);
+            }
+
+            await Task.WhenAll(tasks);
+
+            await _log.WriteInfoAsync("BackUpService", "CreateBackupAsync", "", "Backup has been created", DateTime.UtcNow);
+            //List<IMonitoringObject> allObjects = (await _monitoringObjectRepository.GetAllAsync())?.ToList();
+
+            //string serialized = Newtonsoft.Json.JsonConvert.SerializeObject(allObjects);
+            //await _backUpRepository.InsertAsync(new BackUp()
+            //{
+            //    Key = _backUpKey,
+            //    SerializedObject = serialized
+            //});
         }
 
         public async Task RestoreBackupAsync()
         {
-            IBackUp backUp = await _backUpRepository.GetAsync(_backUpKey);
-            if (backUp == null)
+
+            var all = await _apiMonitoringObjectRepository.GetAllAsync();
+
+            foreach (var item in all)
             {
-                return;
+                await _monitoringObjectRepository.InsertAsync(item);
             }
 
-            List<MonitoringObject> allObjects = Newtonsoft.Json.JsonConvert.DeserializeObject<List<MonitoringObject>>(backUp.SerializedObject);
-            allObjects.ForEach(async @object => await _monitoringObjectRepository.InsertAsync(@object));
+            await _log.WriteInfoAsync("BackUpService", "RestoreBackupAsync", "", "Backup has been restored", DateTime.UtcNow);
+            //IBackUp backUp = await _backUpRepository.GetAsync(_backUpKey);
+            //if (backUp == null)
+            //{
+            //    return;
+            //}
+
+            //List<MonitoringObject> allObjects = Newtonsoft.Json.JsonConvert.DeserializeObject<List<MonitoringObject>>(backUp.SerializedObject);
+            //allObjects.ForEach(async @object => await _monitoringObjectRepository.InsertAsync(@object));
         }
     }
 }

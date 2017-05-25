@@ -56,6 +56,9 @@ namespace MonitoringService.Test
 
             _mockMonitoringService.Setup(x => x.GetCurrentSnapshot()).Returns(Task.FromResult((IEnumerable<IMonitoringObject>)repository));
             _mockBaseSettings.Setup(x => x.MaxTimeDifferenceInSeconds).Returns(ExpirationDateInSeconds);
+            //_mockIsAliveService.Setup(x => x.GetStatusAsync(url, It.IsAny<CancellationToken>()))
+            //    .Returns(Task.FromException<IApiStatusObject>(new OperationCanceledException()));
+
             var monitoringJob = GetMonitorJob();
             #endregion SetUpMocks
 
@@ -63,7 +66,8 @@ namespace MonitoringService.Test
 
             #region Act
 
-            await monitoringJob.Execute();
+            await monitoringJob.CheckAPIs();
+            await monitoringJob.CheckJobs();
 
             #endregion Act
 
@@ -104,7 +108,8 @@ namespace MonitoringService.Test
 
             #region Act
 
-            await monitoringJob.Execute();
+            await monitoringJob.CheckAPIs();
+            await monitoringJob.CheckJobs();
 
             #endregion Act
 
@@ -141,6 +146,8 @@ namespace MonitoringService.Test
 
             _mockMonitoringService.Setup(x => x.GetCurrentSnapshot()).Returns(Task.FromResult((IEnumerable<IMonitoringObject>)repository));
             _mockBaseSettings.Setup(x => x.MaxTimeDifferenceInSeconds).Returns(ExpirationDateInSeconds);
+            _mockIsAliveService.Setup(x => x.GetStatusAsync(url, It.IsAny<CancellationToken>()))
+                .Returns(Task.FromException<IApiStatusObject>(new OperationCanceledException()));
             var monitoringJob = GetMonitorJob();
 
             #endregion SetUpMocks
@@ -148,7 +155,8 @@ namespace MonitoringService.Test
 
             #region Act
 
-            await monitoringJob.Execute();
+            await monitoringJob.CheckAPIs();
+            await monitoringJob.CheckJobs();
 
             #endregion Act
 
@@ -194,7 +202,8 @@ namespace MonitoringService.Test
 
             #region Act
 
-            await monitoringJob.Execute();
+            await monitoringJob.CheckAPIs();
+            await monitoringJob.CheckJobs();
 
             #endregion Act
 

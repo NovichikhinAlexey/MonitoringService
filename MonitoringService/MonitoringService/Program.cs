@@ -14,6 +14,7 @@ using System.Runtime.Loader;
 using Common.Log;
 using Core.Settings;
 using Core.Services;
+using MonitoringService.Utils;
 
 namespace MonitoringService
 {
@@ -33,40 +34,33 @@ namespace MonitoringService
             var settings = Startup.ServiceProvider.GetService<IBaseSettings>();
             var log = Startup.ServiceProvider.GetService<ILog>();
             IMonitoringJob job = Startup.ServiceProvider.GetService<IMonitoringJob>();
+
+            #region InProcessJobs
+
             var end = new ManualResetEvent(false);
             CancellationTokenSource cts = new CancellationTokenSource();
-            backUpService.RestoreBackupAsync().Wait();
-            Task.Run(async () => 
+            List<Task> jobs = new List<Task>()
             {
-                int secondsDelay = settings.MonitoringJobFrequency;
+                InProcessJobHelper.StartJob(async () => { await job.CheckJobs(); }, cts.Token, settings.MonitoringJobFrequencyInSeconds, log),
+                InProcessJobHelper.StartJob(async () => { await job.CheckAPIs(); }, cts.Token, settings.MonitoringApiFrequencyInSeconds, log)
+            };
 
-                while (!cts.IsCancellationRequested)
-                {
-                    try
-                    {
-                       await job.Execute();
-                    }
-                    catch (Exception e)
-                    {
-                        log.WriteErrorAsync("MonitoringService", "Program", "MonitoringJob", e, DateTime.UtcNow).Wait();
-                    }
-
-                    await Task.Delay(secondsDelay * 1000);
-                }
-
-                end.WaitOne();
-            });
+            #endregion
 
             AssemblyLoadContext.Default.Unloading += ctx =>
             {
                 Console.WriteLine("SIGTERM recieved");
                 cts.Cancel();
+                try
+                {
+                    Task.WaitAll(jobs.ToArray());
+                }
+                catch { }
+                end.WaitOne();
             };
 
             host.Run();
-
             log.WriteInfoAsync("MonitoringService", "Program", "Main", "Monitoring Service has been stopped", DateTime.UtcNow).Wait();
-            Thread.Sleep(1000);
             end.Set();
         }
     }
