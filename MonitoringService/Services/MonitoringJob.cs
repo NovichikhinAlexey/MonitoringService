@@ -77,7 +77,6 @@ namespace Services
                 Task<IApiStatusObject> task = _isAliveService.GetStatusAsync(api.Url, cts.Token);
                 pendingHttpChecks.Add(task);
                 requestServiceMapping[task] = api;
-                api.LastTime = now;
             }
 
             List<Task> recipientChecks = new List<Task>(apisMonitoring.Count());
