@@ -91,6 +91,9 @@ namespace Services
                         IApiStatusObject statusObject = await item;
                         requestServiceMapping[item].Version = statusObject.Version;
                         requestServiceMapping[item].LastTime = now;
+
+                        //If api send any failing indicators, they are added to error output
+                        GenerateError(failedChecks, now, statusObject.IssueIndicators, serviceName);
                     }
                     catch (OperationCanceledException e)
                     {
@@ -130,9 +133,19 @@ namespace Services
         private object failedChecksLock = new object();
         private ILog _log;
 
+        private void GenerateError(List<ApiHealthCheckError> errors, DateTime now, 
+            IEnumerable<IssueIndicatorObject> issueIndicators, string serviceName)
+        {
+            if (issueIndicators == null || issueIndicators.Count() == 0)
+                return;
+
+            var message = string.Join("; ", issueIndicators.Select(o => o.Type + ": " + o.Value));
+            GenerateError(errors, now, message, serviceName);
+        }
+
         private void GenerateError( List<ApiHealthCheckError> errors, DateTime now, string errorMessage, string serviceName)
         {
-            var  error = new ApiHealthCheckError()
+            var error = new ApiHealthCheckError()
             {
                 Date = now,
                 LastError = errorMessage,
