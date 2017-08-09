@@ -20,6 +20,8 @@ namespace Core.Settings
             IEnumerable<IssueIndicatorObject> issueIndicators)
         {
             var result = new List<IssueIndicatorObject>();
+            if (issueIndicators == null)
+                return result;
 
             lock (_lockObj)
             {
