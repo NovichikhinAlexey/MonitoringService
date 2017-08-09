@@ -22,6 +22,7 @@ namespace Services
         private readonly ISlackNotifier _slackNotifier;
         private IApiHealthCheckErrorRepository _apiHealthCheckErrorRepository;
         private readonly IIsAliveService _isAliveService;
+        private readonly INotifyingLimitSettings _notifyingLimitSettings;
 
         public MonitoringJob(IMonitoringService monitoringService,
             IBaseSettings settings,
@@ -29,6 +30,7 @@ namespace Services
             IApiMonitoringObjectRepository apiMonitoringObjectRepository,
             IApiHealthCheckErrorRepository apiHealthCheckErrorRepository,
             IIsAliveService isAliveService,
+            INotifyingLimitSettings notifyingLimitSettings,
             ILog log)
         {
             _log = log;
@@ -36,6 +38,7 @@ namespace Services
             _settings = settings;
             _slackNotifier = slackNotifier;
             _isAliveService = isAliveService;
+            _notifyingLimitSettings = notifyingLimitSettings;
             _apiHealthCheckErrorRepository = apiHealthCheckErrorRepository;
         }
 
@@ -136,14 +139,16 @@ namespace Services
         private void GenerateError(List<ApiHealthCheckError> errors, DateTime now, 
             IEnumerable<IssueIndicatorObject> issueIndicators, string serviceName)
         {
-            if (issueIndicators == null || issueIndicators.Count() == 0)
+            var indicators = _notifyingLimitSettings.CheckAndUpdateLimits(serviceName, issueIndicators);
+
+            if (indicators.Count == 0)
                 return;
 
-            var message = string.Join("; ", issueIndicators.Select(o => o.Type + ": " + o.Value));
+            var message = string.Join("; ", indicators.Select(o => o.Type + ": " + o.Value));
             GenerateError(errors, now, message, serviceName);
         }
 
-        private void GenerateError( List<ApiHealthCheckError> errors, DateTime now, string errorMessage, string serviceName)
+        private void GenerateError(List<ApiHealthCheckError> errors, DateTime now, string errorMessage, string serviceName)
         {
             var error = new ApiHealthCheckError()
             {

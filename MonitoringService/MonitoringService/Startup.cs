@@ -35,6 +35,7 @@ namespace MonitoringService
         {
             var settings = GetSettings(Configuration);
             services.AddSingleton<IBaseSettings>(settings.MonitoringService);
+            services.AddSingleton<INotifyingLimitSettings, NotifyingLimitSettings>();
             services.AddSingleton<ISlackNotificationSettings>(settings.SlackNotifications);
             services.RegisterAzureLogs(settings.MonitoringService);
             services.RegisterAzureStorages(settings.MonitoringService);
