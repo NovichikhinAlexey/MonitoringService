@@ -68,7 +68,6 @@ namespace Services
         {
             IEnumerable<IMonitoringObject> apisMonitoring = (await GetMonitoringObjectsForProcessing(x => !string.IsNullOrEmpty(x.Url)))?.ToList();
             List<Task<IApiStatusObject>> pendingHttpChecks = new List<Task<IApiStatusObject>>(apisMonitoring.Count());
-            List<ApiHealthCheckError> failedChecks = new List<ApiHealthCheckError>(apisMonitoring.Count());
             IDictionary<string, IMonitoringObject> serviceNameMonitoringObjectMapping = apisMonitoring.ToDictionary(x => x.ServiceName);
             IDictionary<Task<IApiStatusObject>, IMonitoringObject> requestServiceMapping = new Dictionary<Task<IApiStatusObject>, IMonitoringObject>();
             DateTime now = DateTime.UtcNow;
@@ -82,10 +81,12 @@ namespace Services
                 requestServiceMapping[task] = api;
             }
 
-            List<Task> recipientChecks = new List<Task>(apisMonitoring.Count());
+            var recipientChecks = new List<Task>(apisMonitoring.Count());
+            var failedChecks = new List<ApiHealthCheckError>(apisMonitoring.Count());
+            var resilienceChecks = new List<ApiHealthCheckError>();
             foreach (var item in pendingHttpChecks)
             {
-                string serviceName = requestServiceMapping[item].ServiceName;
+                var serviceName = requestServiceMapping[item].ServiceName;
 
                 var task = Task.Run(async () =>
                 {
@@ -95,8 +96,7 @@ namespace Services
                         requestServiceMapping[item].Version = statusObject.Version;
                         requestServiceMapping[item].LastTime = now;
 
-                        //If api send any failing indicators, they are added to error output
-                        GenerateError(failedChecks, now, statusObject.IssueIndicators, serviceName);
+                        HandleResilience(resilienceChecks, statusObject.IssueIndicators, serviceName);
                     }
                     catch (OperationCanceledException e)
                     {
@@ -122,7 +122,15 @@ namespace Services
             {
                 IMonitoringObject mObject = serviceNameMonitoringObjectMapping[error.ServiceName];
                 await _apiHealthCheckErrorRepository.InsertAsync((IApiHealthCheckError)error);
-                await _slackNotifier.ErrorAsync($"Service url check failed for {error.ServiceName}(URL:{mObject.Url}), reason: {error.LastError}!");
+                await _slackNotifier.ErrorAsync($"Service url check failed for {error.ServiceName} (URL:{mObject.Url}), reason: {error.LastError}!");
+            }
+
+            foreach (var issue in resilienceChecks)
+            {
+                var mObject = serviceNameMonitoringObjectMapping[issue.ServiceName];
+                await _apiHealthCheckErrorRepository.InsertAsync((IApiHealthCheckError)issue);
+                await _slackNotifier.ResilienceAsync(
+                    $"Health check failed for {issue.ServiceName} (URL:{mObject.Url}), reason: {issue.LastError}!");
             }
 
             foreach (var api in apisMonitoring)
@@ -134,9 +142,16 @@ namespace Services
         #region Private
 
         private object failedChecksLock = new object();
+        private object resilienceLockObj = new object();
         private ILog _log;
 
-        private void GenerateError(List<ApiHealthCheckError> errors, DateTime now, 
+        /// <summary>
+        /// If api send any failing indicators, they are added to resilience output
+        /// </summary>
+        /// <param name="issues"></param>
+        /// <param name="issueIndicators"></param>
+        /// <param name="serviceName"></param>
+        private void HandleResilience(ICollection<ApiHealthCheckError> issues, 
             IEnumerable<IssueIndicatorObject> issueIndicators, string serviceName)
         {
             var indicators = _notifyingLimitSettings.CheckAndUpdateLimits(serviceName, issueIndicators);
@@ -144,8 +159,15 @@ namespace Services
             if (indicators.Count == 0)
                 return;
 
-            var message = string.Join("; ", indicators.Select(o => o.Type + ": " + o.Value));
-            GenerateError(errors, now, message, serviceName);
+            lock (resilienceLockObj)
+            {
+                issues.Add(new ApiHealthCheckError()
+                {
+                    Date = DateTime.UtcNow,
+                    LastError = string.Join("; ", indicators.Select(o => o.Type + ": " + o.Value)),
+                    ServiceName = serviceName,
+                });
+            }
         }
 
         private void GenerateError(List<ApiHealthCheckError> errors, DateTime now, string errorMessage, string serviceName)

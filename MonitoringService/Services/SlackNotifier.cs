@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Core.Models;
 
 namespace Services
 {
@@ -22,11 +23,11 @@ namespace Services
             _queue = queueFactory.GetQueue();
         }
 
-        public async Task WarningAsync(string message)
+        private async Task MessageAsync(string type, string message)
         {
             var obj = new
             {
-                Type = "Warnings",
+                Type = type,
                 Sender = _sender,
                 Message = message
             };
@@ -34,16 +35,19 @@ namespace Services
             await _queue.PutRawMessageAsync(JsonConvert.SerializeObject(obj));
         }
 
+        public async Task WarningAsync(string message)
+        {
+            await MessageAsync(SlackChannel.Warnings.ToString(), message);
+        }
+
         public async Task ErrorAsync(string message)
         {
-            var obj = new
-            {
-                Type = "Errors",
-                Sender = _sender,
-                Message = message
-            };
+            await MessageAsync(SlackChannel.Errors.ToString(), message);
+        }
 
-            await _queue.PutRawMessageAsync(JsonConvert.SerializeObject(obj));
+        public async Task ResilienceAsync(string message)
+        {
+            await MessageAsync(SlackChannel.Resilience.ToString(), message);
         }
     }
 }

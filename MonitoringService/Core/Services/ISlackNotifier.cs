@@ -9,5 +9,6 @@ namespace Core.Services
     {
         Task WarningAsync(string message);
         Task ErrorAsync(string message);
+        Task ResilienceAsync(string message);
     }
 }
