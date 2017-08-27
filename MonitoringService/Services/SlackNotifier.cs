@@ -22,7 +22,7 @@ namespace Services
             _queue = queueFactory.GetQueue();
         }
 
-        public async Task WarningAsync(string message)
+        public async Task SendWarningMsgAsync(string message)
         {
             var obj = new
             {
@@ -34,11 +34,11 @@ namespace Services
             await _queue.PutRawMessageAsync(JsonConvert.SerializeObject(obj));
         }
 
-        public async Task ErrorAsync(string message)
+        public async Task SendMonitorMsgAsync(string message)
         {
             var obj = new
             {
-                Type = "Errors",
+                Type = "Monitor",
                 Sender = _sender,
                 Message = message
             };

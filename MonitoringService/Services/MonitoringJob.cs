@@ -57,7 +57,7 @@ namespace Services
             {
                 var timeDiff = now - service.LastTime;
                 string formattedDiff = timeDiff.ToString(@"hh\:mm\:ss");
-                await _slackNotifier.ErrorAsync($"No updates from {service.ServiceName} within {formattedDiff}!");
+                await _slackNotifier.SendMonitorMsgAsync($"No updates from {service.ServiceName} within {formattedDiff}!");
             });
         }
 
@@ -116,7 +116,7 @@ namespace Services
             {
                 IMonitoringObject mObject = serviceNameMonitoringObjectMapping[error.ServiceName];
                 await _apiHealthCheckErrorRepository.InsertAsync((IApiHealthCheckError)error);
-                await _slackNotifier.ErrorAsync($"Service url check failed for {error.ServiceName}(URL:{mObject.Url}), reason: {error.LastError}!");
+                await _slackNotifier.SendMonitorMsgAsync($"Service url check failed for {error.ServiceName}(URL:{mObject.Url}), reason: {error.LastError}!");
             }
 
             foreach (var api in apisMonitoring)

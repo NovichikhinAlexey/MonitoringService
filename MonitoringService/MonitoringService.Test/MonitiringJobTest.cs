@@ -73,7 +73,7 @@ namespace MonitoringService.Test
 
             #region Assert
 
-            _mockSlackNotifier.Verify(x => x.ErrorAsync(It.IsAny<string>()));
+            _mockSlackNotifier.Verify(x => x.SendMonitorMsgAsync(It.IsAny<string>()));
 
             #endregion Assert
         }
@@ -115,7 +115,7 @@ namespace MonitoringService.Test
 
             #region Assert
 
-            _mockSlackNotifier.Verify(x => x.ErrorAsync(It.IsAny<string>()));
+            _mockSlackNotifier.Verify(x => x.SendMonitorMsgAsync(It.IsAny<string>()));
 
             #endregion Assert
         }
@@ -162,7 +162,7 @@ namespace MonitoringService.Test
 
             #region Assert
 
-            _mockSlackNotifier.Verify(x => x.ErrorAsync(It.IsAny<string>()), Times.Exactly(2));
+            _mockSlackNotifier.Verify(x => x.SendMonitorMsgAsync(It.IsAny<string>()), Times.Exactly(2));
 
             #endregion Assert
         }
@@ -209,7 +209,7 @@ namespace MonitoringService.Test
 
             #region Assert
 
-            _mockSlackNotifier.Verify(x => x.ErrorAsync(It.IsAny<string>()), Times.Never);
+            _mockSlackNotifier.Verify(x => x.SendMonitorMsgAsync(It.IsAny<string>()), Times.Never);
 
             #endregion Assert
         }

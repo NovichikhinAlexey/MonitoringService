@@ -7,7 +7,7 @@ namespace Core.Services
 {
     public interface ISlackNotifier
     {
-        Task WarningAsync(string message);
-        Task ErrorAsync(string message);
+        Task SendWarningMsgAsync(string message);
+        Task SendMonitorMsgAsync(string message);
     }
 }
