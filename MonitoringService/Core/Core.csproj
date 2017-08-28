@@ -7,7 +7,7 @@
   <ItemGroup>
     <PackageReference Include="Lykke.AzureStorage" Version="1.2.22" />
     <PackageReference Include="Lykke.Common" Version="1.1.69" />
-    <PackageReference Include="Lykke.Pkg.SettingsReader" Version="1.0.0" />
+    <PackageReference Include="Lykke.SettingsReader" Version="1.0.38" />
     <PackageReference Include="Lykke.SlackNotification.AzureQueue" Version="1.0.4" />
   </ItemGroup>
 
