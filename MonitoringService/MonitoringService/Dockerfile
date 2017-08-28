@@ -1,4 +1,4 @@
-FROM microsoft/aspnetcore:1.1.1
+FROM microsoft/dotnet:2.0-runtime
 ENTRYPOINT ["dotnet", "MonitoringService.dll"]
 ARG source=.
 WORKDIR /app
