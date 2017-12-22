@@ -13,6 +13,7 @@ namespace Services
     //Uses HttpClient.
     public class IsAliveService : IIsAliveService
     {
+        private const int _maxContentLength = 60000;
         private readonly HttpClient _httpClient;
         private readonly ILog _log;
 
@@ -35,6 +36,8 @@ namespace Services
             }
             catch (Exception)
             {
+                if (content.Length > _maxContentLength)
+                    content = content.Substring(0, _maxContentLength);
                 await _log.WriteWarningAsync(
                     "IsAliveService.GetStatusAsync",
                     url,
