@@ -237,3 +237,6 @@ _Pvt_Extensions
 /.git.old
 
 [Dd]ocs/
+
+**/launchSettings.json
+**/appsettings.*.json

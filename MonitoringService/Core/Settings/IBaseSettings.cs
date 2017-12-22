@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Core.Settings
+﻿namespace Core.Settings
 {
     public class BaseSettings : IBaseSettings
     {
@@ -10,6 +6,7 @@ namespace Core.Settings
         public int MaxTimeDifferenceInSeconds { get; set; }
         public int MonitoringJobFrequencyInSeconds { get; set; }
         public int MonitoringApiFrequencyInSeconds { get; set; }
+        public int PingTimeoutInSeconds { get; set; }
     }
 
     public class SlackNotificationSettings : ISlackNotificationSettings
@@ -34,6 +31,7 @@ namespace Core.Settings
         int MaxTimeDifferenceInSeconds { get; set; }
         int MonitoringJobFrequencyInSeconds { get; set; }
         int MonitoringApiFrequencyInSeconds { get; set; }
+        int PingTimeoutInSeconds { get; set; }
     }
 
     public class DB

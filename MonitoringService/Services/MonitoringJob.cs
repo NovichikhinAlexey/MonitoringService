@@ -8,8 +8,6 @@ using Core.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,13 +17,14 @@ namespace Services
     {
         private readonly IMonitoringService _monitoringService;
         private readonly IBaseSettings _settings;
-        private readonly ISlackNotifier _slackNotifier;
-        private IApiHealthCheckErrorRepository _apiHealthCheckErrorRepository;
+        private readonly ILog _log;
         private readonly IIsAliveService _isAliveService;
+        private readonly IApiHealthCheckErrorRepository _apiHealthCheckErrorRepository;
+        private readonly object _failedChecksLock = new object();
 
-        public MonitoringJob(IMonitoringService monitoringService,
+        public MonitoringJob(
+            IMonitoringService monitoringService,
             IBaseSettings settings,
-            ISlackNotifier slackNotifier,
             IApiMonitoringObjectRepository apiMonitoringObjectRepository,
             IApiHealthCheckErrorRepository apiHealthCheckErrorRepository,
             IIsAliveService isAliveService,
@@ -34,7 +33,6 @@ namespace Services
             _log = log;
             _monitoringService = monitoringService;
             _settings = settings;
-            _slackNotifier = slackNotifier;
             _isAliveService = isAliveService;
             _apiHealthCheckErrorRepository = apiHealthCheckErrorRepository;
         }
@@ -57,7 +55,10 @@ namespace Services
             {
                 var timeDiff = now - service.LastTime;
                 string formattedDiff = timeDiff.ToString(@"hh\:mm\:ss");
-                await _slackNotifier.SendMonitorMsgAsync($"No updates from {service.ServiceName} within {formattedDiff}!");
+                await _log.WriteMonitorAsync(
+                    nameof(MonitoringJob),
+                    nameof(CheckJobs),
+                    $"No updates from {service.ServiceName} within {formattedDiff}!");
             });
         }
 
@@ -72,7 +73,7 @@ namespace Services
 
             foreach (var api in apisMonitoring)
             {
-                CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(_settings.PingTimeoutInSeconds));
 
                 Task<IApiStatusObject> task = _isAliveService.GetStatusAsync(api.Url, cts.Token);
                 pendingHttpChecks.Add(task);
@@ -92,7 +93,7 @@ namespace Services
                         requestServiceMapping[item].Version = statusObject.Version;
                         requestServiceMapping[item].LastTime = now;
                     }
-                    catch (OperationCanceledException e)
+                    catch (OperationCanceledException)
                     {
                         GenerateError(failedChecks, now, "Timeout", serviceName);
                     }
@@ -115,8 +116,11 @@ namespace Services
             foreach (var error in failedChecks)
             {
                 IMonitoringObject mObject = serviceNameMonitoringObjectMapping[error.ServiceName];
-                await _apiHealthCheckErrorRepository.InsertAsync((IApiHealthCheckError)error);
-                await _slackNotifier.SendMonitorMsgAsync($"Service url check failed for {error.ServiceName}(URL:{mObject.Url}), reason: {error.LastError}!");
+                await _apiHealthCheckErrorRepository.InsertAsync(error);
+                await _log.WriteMonitorAsync(
+                    nameof(MonitoringJob),
+                    nameof(CheckAPIs),
+                    $"Service url check failed for {error.ServiceName}(URL:{mObject.Url}), reason: {error.LastError}!");
             }
 
             foreach (var api in apisMonitoring)
@@ -127,9 +131,6 @@ namespace Services
 
         #region Private
 
-        private object failedChecksLock = new object();
-        private ILog _log;
-
         private void GenerateError( List<ApiHealthCheckError> errors, DateTime now, string errorMessage, string serviceName)
         {
             var  error = new ApiHealthCheckError()
@@ -139,7 +140,7 @@ namespace Services
                 ServiceName = serviceName,
             };
 
-            lock (failedChecksLock)
+            lock (_failedChecksLock)
             {
                 errors.Add(error);
             }

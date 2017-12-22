@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using Core.Services;
-using MonitoringService.Models;
 using Core.Models;
+using MonitoringService.Models;
 
 namespace MonitoringService.Controllers
 {
@@ -21,6 +21,7 @@ namespace MonitoringService.Controllers
         }
 
         [HttpGet]
+        [SwaggerOperation("Get")]
         [ProducesResponseType(typeof(ListData<MonitoringObjectModel>), 200)]
         public async Task<IActionResult> Get()
         {
@@ -39,6 +40,7 @@ namespace MonitoringService.Controllers
 
         [HttpGet]
         [Route("{serviceName}")]
+        [SwaggerOperation("GetByName")]
         [ProducesResponseType(typeof(MonitoringObjectModel), 200)]
         public async Task<IActionResult> Get([FromRoute]string serviceName)
         {
@@ -56,6 +58,7 @@ namespace MonitoringService.Controllers
 
         [HttpPost]
         [Route("ping")]
+        [SwaggerOperation("Ping")]
         public async Task Post([FromBody]MonitoringObjectPingModel model)
         {
             var mappedModel = new MonitoringObject()
@@ -70,6 +73,7 @@ namespace MonitoringService.Controllers
 
         [HttpPost]
         [Route("mute")]
+        [SwaggerOperation("Mute")]
         public async Task Mute([FromBody]MonitoringObjectMuteModel model)
         {
             await _monitoringService.Mute(model.ServiceName, model.Minutes);
@@ -77,12 +81,14 @@ namespace MonitoringService.Controllers
 
         [HttpPost]
         [Route("unmute")]
+        [SwaggerOperation("Unmute")]
         public async Task Unmute([FromBody]MonitoringObjectUnmuteModel model)
         {
             await _monitoringService.Unmute(model.ServiceName);
         }
 
         [HttpDelete]
+        [SwaggerOperation("Remove")]
         [Route("remove/{serviceName}")]
         public async Task Remove([FromRoute]string serviceName)
         {

@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Services;
+using Microsoft.Extensions.PlatformAbstractions;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace MonitoringService.Controllers
 {
@@ -8,16 +9,17 @@ namespace MonitoringService.Controllers
     [Produces("application/json")]
     public class SystemController : Controller
     {
-
-        public SystemController()
-        {
-        }
-
         [Route("isalive")]
         [HttpGet]
+        [SwaggerOperation("IsAlive")]
         public async Task<IActionResult> IsAlive()
         {
-            return Ok(new { Version = Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application.ApplicationVersion });
+            return Ok(
+                new
+                {
+                    Name = PlatformServices.Default.Application.ApplicationName,
+                    Version = PlatformServices.Default.Application.ApplicationVersion,
+                });
         }
     }
 }

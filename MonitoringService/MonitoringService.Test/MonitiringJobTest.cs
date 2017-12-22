@@ -8,7 +8,6 @@ using Moq;
 using Services;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,7 +18,6 @@ namespace MonitoringService.Test
     {
         Mock<IMonitoringService> _mockMonitoringService;
         Mock<IBaseSettings> _mockBaseSettings;
-        Mock<ISlackNotifier> _mockSlackNotifier;
         Mock<IApiMonitoringObjectRepository> _mockApiMonitoringObjectRepository;
         Mock<IApiHealthCheckErrorRepository> _mockApiHealthCheckErrorRepository;
         Mock<IIsAliveService> _mockIsAliveService;
@@ -31,7 +29,6 @@ namespace MonitoringService.Test
         {
             _mockMonitoringService = new Mock<IMonitoringService>();
             _mockBaseSettings = new Mock<IBaseSettings>();
-            _mockSlackNotifier = new Mock<ISlackNotifier>();
             _mockApiMonitoringObjectRepository = new Mock<IApiMonitoringObjectRepository>();
             _mockApiHealthCheckErrorRepository = new Mock<IApiHealthCheckErrorRepository>();
             _mockIsAliveService = new Mock<IIsAliveService>();
@@ -73,7 +70,7 @@ namespace MonitoringService.Test
 
             #region Assert
 
-            _mockSlackNotifier.Verify(x => x.SendMonitorMsgAsync(It.IsAny<string>()));
+            //_mockSlackNotifier.Verify(x => x.SendMonitorMsgAsync(It.IsAny<string>()));
 
             #endregion Assert
         }
@@ -115,7 +112,7 @@ namespace MonitoringService.Test
 
             #region Assert
 
-            _mockSlackNotifier.Verify(x => x.SendMonitorMsgAsync(It.IsAny<string>()));
+            //_mockSlackNotifier.Verify(x => x.SendMonitorMsgAsync(It.IsAny<string>()));
 
             #endregion Assert
         }
@@ -162,7 +159,7 @@ namespace MonitoringService.Test
 
             #region Assert
 
-            _mockSlackNotifier.Verify(x => x.SendMonitorMsgAsync(It.IsAny<string>()), Times.Exactly(2));
+            //_mockSlackNotifier.Verify(x => x.SendMonitorMsgAsync(It.IsAny<string>()), Times.Exactly(2));
 
             #endregion Assert
         }
@@ -209,7 +206,7 @@ namespace MonitoringService.Test
 
             #region Assert
 
-            _mockSlackNotifier.Verify(x => x.SendMonitorMsgAsync(It.IsAny<string>()), Times.Never);
+            //_mockSlackNotifier.Verify(x => x.SendMonitorMsgAsync(It.IsAny<string>()), Times.Never);
 
             #endregion Assert
         }
@@ -219,7 +216,6 @@ namespace MonitoringService.Test
             return new MonitoringJob(
                 _mockMonitoringService.Object,
                 _mockBaseSettings.Object,
-                _mockSlackNotifier.Object,
                 _mockApiMonitoringObjectRepository.Object,
                 _mockApiHealthCheckErrorRepository.Object,
                 _mockIsAliveService.Object,
