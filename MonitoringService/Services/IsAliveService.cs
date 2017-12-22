@@ -1,13 +1,12 @@
-﻿using Core.Services;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Core.Models;
+﻿using System;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Threading;
-using Core.Extensions;
+using Newtonsoft.Json;
 using Common.Log;
+using Core.Models;
+using Core.Services;
+using Core.Exceptions;
 
 namespace Services
 {
@@ -27,16 +26,19 @@ namespace Services
         {
             IApiStatusObject statusObject = null;
             var response = await _httpClient.GetAsync(url, cancellationToken);
-            await response.EnsureSuccessStatusCodeAsync();
-
+            if (!response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                throw new SimpleHttpResponseException(response.StatusCode, content);
+            }
             try
             {
                 var content = await response.Content.ReadAsStringAsync();
-                statusObject = Newtonsoft.Json.JsonConvert.DeserializeObject<ApiStatusObject>(content);
+                statusObject = JsonConvert.DeserializeObject<ApiStatusObject>(content);
             }
             catch (Exception e)
             {
-                await _log.WriteErrorAsync("IsAliveService", "GetStatus", "", e, DateTime.UtcNow);
+                await _log.WriteErrorAsync(nameof(IsAliveService), nameof(GetStatusAsync), e);
             }
 
             return statusObject ?? new ApiStatusObject()

@@ -1,7 +1,5 @@
 ﻿using Common.Log;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,7 +19,7 @@ namespace MonitoringService.Utils
                     }
                     catch (Exception e)
                     {
-                        log.WriteErrorAsync("MonitoringService", "Program", "MonitoringJob", e, DateTime.UtcNow).Wait();
+                        log.WriteErrorAsync("InProcessJobHelper", "StartJob", e).Wait();
                     }
 
                     await Task.Delay(frequencyInSeconds * 1000, cToken);

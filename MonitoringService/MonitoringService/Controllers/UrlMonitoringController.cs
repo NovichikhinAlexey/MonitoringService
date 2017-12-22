@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using Core.Services;
-using MonitoringService.Models;
 using Core.Models;
-using Core.Repositories;
+using MonitoringService.Models;
 
 namespace MonitoringService.Controllers
 {
@@ -22,6 +20,7 @@ namespace MonitoringService.Controllers
         }
 
         [HttpGet]
+        [SwaggerOperation("Get")]
         [ProducesResponseType(typeof(ListData<UrlMonitoringObjectModel>), 200)]
         public async Task<IActionResult> Get()
         {
@@ -37,6 +36,7 @@ namespace MonitoringService.Controllers
 
         [HttpPost]
         [Route("monitor")]
+        [SwaggerOperation("Monitor")]
         public async Task Post([FromBody]UrlMonitoringObjectModel model)
         {
             var mappedModel = new MonitoringObject()
