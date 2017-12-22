@@ -13,7 +13,7 @@ namespace Services
     //Uses HttpClient.
     public class IsAliveService : IIsAliveService
     {
-        private const int _maxContentLength = 60000;
+        private const int _maxContentLength = 30000;
         private readonly HttpClient _httpClient;
         private readonly ILog _log;
 
