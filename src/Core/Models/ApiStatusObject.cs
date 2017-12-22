@@ -1,4 +1,6 @@
-﻿namespace Core.Models
+﻿using System.Collections.Generic;
+
+namespace Core.Models
 {
     public interface IApiStatusObject
     {
