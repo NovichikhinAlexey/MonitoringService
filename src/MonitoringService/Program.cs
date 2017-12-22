@@ -13,7 +13,7 @@ namespace MonitoringService
 
         public static void Main(string[] args)
         {
-            Console.WriteLine($"TradeVolumes version {PlatformServices.Default.Application.ApplicationVersion}");
+            Console.WriteLine($"Monitoring version {PlatformServices.Default.Application.ApplicationVersion}");
 #if DEBUG
             Console.WriteLine("Is DEBUG");
 #else
