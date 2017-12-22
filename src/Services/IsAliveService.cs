@@ -25,7 +25,6 @@ namespace Services
 
         public async Task<IApiStatusObject> GetStatusAsync(string url, CancellationToken cancellationToken)
         {
-            IApiStatusObject statusObject = null;
             var response = await _httpClient.GetAsync(url, cancellationToken);
             string content = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode)
@@ -35,18 +34,14 @@ namespace Services
                 throw new SimpleHttpResponseException(response.StatusCode, content);
             }
 
+            IApiStatusObject statusObject = null;
             try
             {
                 statusObject = JsonConvert.DeserializeObject<ApiStatusObject>(content);
             }
             catch (Exception)
             {
-                if (content.Length > _maxContentLength)
-                    content = content.Substring(0, _maxContentLength);
-                await _log.WriteWarningAsync(
-                    "IsAliveService.GetStatusAsync",
-                    url,
-                    $"Could not parse reponse: {content}");
+                // hiding such exception, cause we can get response from our web-sites with a page content here.
             }
 
             return statusObject ?? new ApiStatusObject()
