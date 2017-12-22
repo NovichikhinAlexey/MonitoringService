@@ -29,7 +29,12 @@ namespace Services
             var response = await _httpClient.GetAsync(url, cancellationToken);
             string content = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode)
+            {
+                if (content.Length > _maxContentLength)
+                    content = content.Substring(0, _maxContentLength);
                 throw new SimpleHttpResponseException(response.StatusCode, content);
+            }
+
             try
             {
                 statusObject = JsonConvert.DeserializeObject<ApiStatusObject>(content);
