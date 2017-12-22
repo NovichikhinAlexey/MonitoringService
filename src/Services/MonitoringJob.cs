@@ -109,8 +109,7 @@ namespace Services
                     }
                     catch (Exception e)
                     {
-                        await _log.WriteErrorAsync("MonitoringJob", "CheckAPIs", "", e, DateTime.UtcNow);
-                        GenerateError(failedChecks, now, $"Unexpected exception: {e.Message}", serviceName);
+                        GenerateError(failedChecks, now, $"Unexpected exception: {e.GetBaseException().Message}", serviceName);
                     }
                 });
 

@@ -26,19 +26,19 @@ namespace Services
         {
             IApiStatusObject statusObject = null;
             var response = await _httpClient.GetAsync(url, cancellationToken);
+            string content = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode)
-            {
-                var content = await response.Content.ReadAsStringAsync();
                 throw new SimpleHttpResponseException(response.StatusCode, content);
-            }
             try
             {
-                var content = await response.Content.ReadAsStringAsync();
                 statusObject = JsonConvert.DeserializeObject<ApiStatusObject>(content);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                await _log.WriteErrorAsync(nameof(IsAliveService), nameof(GetStatusAsync), e);
+                await _log.WriteWarningAsync(
+                    "IsAliveService.GetStatusAsync",
+                    url,
+                    $"Could not parse reponse: {content}");
             }
 
             return statusObject ?? new ApiStatusObject()
