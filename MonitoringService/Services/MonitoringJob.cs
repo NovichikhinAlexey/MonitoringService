@@ -72,7 +72,7 @@ namespace Services
 
             foreach (var api in apisMonitoring)
             {
-                CancellationTokenSource cts = new CancellationTokenSource(5500);
+                CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
 
                 Task<IApiStatusObject> task = _isAliveService.GetStatusAsync(api.Url, cts.Token);
                 pendingHttpChecks.Add(task);
