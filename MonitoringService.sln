@@ -1,25 +1,25 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.7
+VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonitoringService", "MonitoringService\MonitoringService.csproj", "{E12487FF-CEA2-4F6A-90F2-528E58993C2E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonitoringService", "src\MonitoringService\MonitoringService.csproj", "{E12487FF-CEA2-4F6A-90F2-528E58993C2E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Main", "Main", "{EBB0AF32-A559-4831-8B4D-82C7837EBCB7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{472EDEEE-D880-4127-BE5A-5FE6287DE27D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "src\Core\Core.csproj", "{472EDEEE-D880-4127-BE5A-5FE6287DE27D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Services.csproj", "{13EEE83E-3738-4D31-B6BB-8D1B53298CBA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "src\Services\Services.csproj", "{13EEE83E-3738-4D31-B6BB-8D1B53298CBA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repositories", "Repositories\Repositories.csproj", "{8117EAD2-9823-4BD9-9D98-A9C0E16E5DB0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repositories", "src\Repositories\Repositories.csproj", "{8117EAD2-9823-4BD9-9D98-A9C0E16E5DB0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{589BBA1D-905D-4505-84EA-5742EC97B2A2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Nuget", "Nuget", "{68A4D218-49B4-42BA-AC28-F30B30F77000}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{68A4D218-49B4-42BA-AC28-F30B30F77000}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonitoringServiceApiCaller", "MonitoringServiceApiCaller\MonitoringServiceApiCaller.csproj", "{B19D001F-C94D-4C3A-B226-236BA4249EEA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonitoringServiceApiCaller", "client\MonitoringServiceApiCaller\MonitoringServiceApiCaller.csproj", "{B19D001F-C94D-4C3A-B226-236BA4249EEA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonitoringService.Test", "MonitoringService.Test\MonitoringService.Test.csproj", "{A44F1138-E8BC-4D4F-95F6-BB7DA919AE11}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonitoringService.Test", "tests\MonitoringService.Test\MonitoringService.Test.csproj", "{A44F1138-E8BC-4D4F-95F6-BB7DA919AE11}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,5 +61,8 @@ Global
 		{8117EAD2-9823-4BD9-9D98-A9C0E16E5DB0} = {EBB0AF32-A559-4831-8B4D-82C7837EBCB7}
 		{B19D001F-C94D-4C3A-B226-236BA4249EEA} = {68A4D218-49B4-42BA-AC28-F30B30F77000}
 		{A44F1138-E8BC-4D4F-95F6-BB7DA919AE11} = {589BBA1D-905D-4505-84EA-5742EC97B2A2}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {886734EF-5525-4A72-BC56-440EF2F9E7DD}
 	EndGlobalSection
 EndGlobal
