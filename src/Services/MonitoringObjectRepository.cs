@@ -1,14 +1,14 @@
-﻿using Core.Repositories;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using Core.Models;
 using System.Threading.Tasks;
+using Core.Models;
+using Core.Repositories;
 
 namespace Services
 {
     public class MonitoringObjectRepository : IMonitoringObjectRepository
     {
-        private IDictionary<string, IMonitoringObject> _monitoringDictionary;
+        private readonly IDictionary<string, IMonitoringObject> _monitoringDictionary;
         private readonly Guid _guid = Guid.NewGuid();
 
         public MonitoringObjectRepository()
@@ -16,27 +16,30 @@ namespace Services
             _monitoringDictionary = new Dictionary<string, IMonitoringObject>();
         }
 
-        public async Task<IEnumerable<IMonitoringObject>> GetAllAsync()
+        public Task<IEnumerable<IMonitoringObject>> GetAllAsync()
         {
-            return _monitoringDictionary.Values;
+            return Task.FromResult<IEnumerable<IMonitoringObject>>(_monitoringDictionary.Values);
         }
 
-        public async Task<IMonitoringObject> GetByNameAsync(string serviceName)
+        public Task<IMonitoringObject> GetByNameAsync(string serviceName)
         {
-            IMonitoringObject mObject;
-            _monitoringDictionary.TryGetValue(serviceName, out mObject);
+            _monitoringDictionary.TryGetValue(serviceName, out IMonitoringObject mObject);
 
-            return mObject;
+            return Task.FromResult(mObject);
         }
 
-        public async Task InsertAsync(IMonitoringObject mObject)
+        public Task InsertAsync(IMonitoringObject mObject)
         {
             _monitoringDictionary[mObject.ServiceName] = mObject;
+
+            return Task.CompletedTask;
         }
 
-        public async Task RemoveAsync(string serviceName)
+        public Task RemoveAsync(string serviceName)
         {
             _monitoringDictionary.Remove(serviceName);
+
+            return Task.CompletedTask;
         }
     }
 }
