@@ -7,10 +7,29 @@ using Lykke.MonitoringServiceApiCaller.Models;
 
 namespace Lykke.MonitoringServiceApiCaller
 {
+    /// <summary>
+    /// Class for auto-registration in monitoring service
+    /// </summary>
     public static class AutoRegistrationInMonitoring
     {
-        public async static Task RegisterAsync(IConfigurationRoot configuration, string monitoringServiceUrl, ILog log)
+        /// <summary>
+        /// Registers calling application in monitoring service based on application url from environemnt variable.
+        /// </summary>
+        /// <param name="configuration">Application configuration that is used for environemnt variable search.</param>
+        /// <param name="monitoringServiceUrl">Monitoring service url.</param>
+        /// <param name="log">ILog implementation. LogToConsole is used on case this parmeter is null.</param>
+        /// <returns></returns>
+        public async static Task RegisterAsync(
+            IConfigurationRoot configuration,
+            string monitoringServiceUrl,
+            ILog log)
         {
+            if (configuration == null)
+                throw new ArgumentNullException(nameof(configuration));
+            if (string.IsNullOrWhiteSpace(monitoringServiceUrl))
+                throw new ArgumentException("Argument is empty", nameof(monitoringServiceUrl));
+            if (log == null)
+                log = new LogToConsole();
             try
             {
                 string envVariableName = "MyMonitoringUrl";
