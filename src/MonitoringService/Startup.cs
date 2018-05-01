@@ -227,7 +227,7 @@ namespace MonitoringService
                 QueueName = settings.CurrentValue.SlackNotifications.AzureQueue.QueueName
             }, aggregateLogger);
 
-            var slackNotificationsManager = new LykkeLogToAzureSlackNotificationsManager(slackService, console);
+            var slackNotificationsManager = new LykkeLogToAzureSlackNotificationsManager(slackService, true, console);
 
             // Creating azure storage logger, which logs own messages to concole log
             var azureStorageLogger = new LykkeLogToAzureStorage(
