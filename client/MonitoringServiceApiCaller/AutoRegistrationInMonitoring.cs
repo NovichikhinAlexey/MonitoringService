@@ -32,21 +32,25 @@ namespace Lykke.MonitoringServiceApiCaller
                 log = new LogToConsole();
             try
             {
-                string envVariableName = "MyMonitoringUrl";
-                string myMonitoringUrl = configuration[envVariableName];
+                string myMonitoringUrlEnvVarName = "MyMonitoringUrl";
+                string myMonitoringUrl = configuration[myMonitoringUrlEnvVarName];
                 if (string.IsNullOrWhiteSpace(myMonitoringUrl))
                 {
                     myMonitoringUrl = "0.0.0.0";
-                    log.WriteInfo("Auto-registration in monitoring", "", $"{envVariableName} environment variable is not found. Using {myMonitoringUrl} for monitoring registration");
+                    log.WriteInfo("Auto-registration in monitoring", "", $"{myMonitoringUrlEnvVarName} environment variable is not found. Using {myMonitoringUrl} for monitoring registration");
                 }
+                string myMonitoringNameEnvVarName = "MyMonitoringName";
+                string myMonitoringName = configuration[myMonitoringNameEnvVarName];
+                if (string.IsNullOrWhiteSpace(myMonitoringName))
+                    myMonitoringName = PlatformServices.Default.Application.ApplicationName;
                 var monitoringService = new MonitoringServiceFacade(monitoringServiceUrl);
                 await monitoringService.MonitorUrl(
                     new UrlMonitoringObjectModel
                     {
                         Url = myMonitoringUrl,
-                        ServiceName = PlatformServices.Default.Application.ApplicationName,
+                        ServiceName = myMonitoringName,
                     });
-                log.WriteInfo("Auto-registration in monitoring", "", $"Auto-registered in Monitoring on {myMonitoringUrl}");
+                log.WriteInfo("Auto-registration in monitoring", "", $"Auto-registered in Monitoring with name {myMonitoringName} on {myMonitoringUrl}");
             }
             catch (Exception ex)
             {
