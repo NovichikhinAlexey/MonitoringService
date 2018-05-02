@@ -13,6 +13,7 @@ namespace Lykke.MonitoringServiceApiCaller
     public static class AutoRegistrationInMonitoring
     {
         private const string _myMonitoringUrlEnvVarName = "MyMonitoringUrl";
+        private const string _missingEnvVarUrl = "0.0.0.0";
         private const string _myMonitoringNameEnvVarName = "MyMonitoringName";
 
         /// <summary>
@@ -38,7 +39,7 @@ namespace Lykke.MonitoringServiceApiCaller
                 string myMonitoringUrl = configuration[_myMonitoringUrlEnvVarName];
                 if (string.IsNullOrWhiteSpace(myMonitoringUrl))
                 {
-                    myMonitoringUrl = "0.0.0.0";
+                    myMonitoringUrl = _missingEnvVarUrl;
                     log.WriteInfo("Auto-registration in monitoring", "", $"{_myMonitoringUrlEnvVarName} environment variable is not found. Using {myMonitoringUrl} for monitoring registration");
                 }
                 string myMonitoringName = configuration[_myMonitoringNameEnvVarName];
