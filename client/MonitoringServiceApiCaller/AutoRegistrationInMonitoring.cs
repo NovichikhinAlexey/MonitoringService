@@ -12,6 +12,9 @@ namespace Lykke.MonitoringServiceApiCaller
     /// </summary>
     public static class AutoRegistrationInMonitoring
     {
+        private const string _myMonitoringUrlEnvVarName = "MyMonitoringUrl";
+        private const string _myMonitoringNameEnvVarName = "MyMonitoringName";
+
         /// <summary>
         /// Registers calling application in monitoring service based on application url from environemnt variable.
         /// </summary>
@@ -32,15 +35,13 @@ namespace Lykke.MonitoringServiceApiCaller
                 log = new LogToConsole();
             try
             {
-                string myMonitoringUrlEnvVarName = "MyMonitoringUrl";
-                string myMonitoringUrl = configuration[myMonitoringUrlEnvVarName];
+                string myMonitoringUrl = configuration[_myMonitoringUrlEnvVarName];
                 if (string.IsNullOrWhiteSpace(myMonitoringUrl))
                 {
                     myMonitoringUrl = "0.0.0.0";
-                    log.WriteInfo("Auto-registration in monitoring", "", $"{myMonitoringUrlEnvVarName} environment variable is not found. Using {myMonitoringUrl} for monitoring registration");
+                    log.WriteInfo("Auto-registration in monitoring", "", $"{_myMonitoringUrlEnvVarName} environment variable is not found. Using {myMonitoringUrl} for monitoring registration");
                 }
-                string myMonitoringNameEnvVarName = "MyMonitoringName";
-                string myMonitoringName = configuration[myMonitoringNameEnvVarName];
+                string myMonitoringName = configuration[_myMonitoringNameEnvVarName];
                 if (string.IsNullOrWhiteSpace(myMonitoringName))
                     myMonitoringName = PlatformServices.Default.Application.ApplicationName;
                 var monitoringService = new MonitoringServiceFacade(monitoringServiceUrl);
