@@ -12,11 +12,21 @@
     <PackageTags>Lykke Monitoring Service MonitoringService</PackageTags>
     <RepositoryUrl>https://github.com/LykkeCity/MonitoringService</RepositoryUrl>
     <PackageProjectUrl>https://github.com/LykkeCity/MonitoringService</PackageProjectUrl>
+    <PackageIconUrl>https://avatars3.githubusercontent.com/u/14153330?v=3&amp;s=200</PackageIconUrl>
     <Description>Api service for health check.</Description>
     <AssemblyName>Lykke.MonitoringServiceApiCaller</AssemblyName>
     <RootNamespace>Lykke.MonitoringServiceApiCaller</RootNamespace>
     <Version>1.0.1</Version>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>bin\Debug\netstandard2.0\$(AssemblyName).xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard2.0\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
