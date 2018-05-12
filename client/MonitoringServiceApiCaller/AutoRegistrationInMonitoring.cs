@@ -15,6 +15,7 @@ namespace Lykke.MonitoringServiceApiCaller
         private const string _myMonitoringUrlEnvVarName = "MyMonitoringUrl";
         private const string _missingEnvVarUrl = "0.0.0.0";
         private const string _myMonitoringNameEnvVarName = "MyMonitoringName";
+        private const string _disableAutoRegistrationEnvVarName = "DisableAutoRegistrationInMonitoring";
 
         /// <summary>
         /// Registers calling application in monitoring service based on application url from environemnt variable.
@@ -30,10 +31,17 @@ namespace Lykke.MonitoringServiceApiCaller
         {
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
+
+            string disableAutoRegistrationStr = configuration[_disableAutoRegistrationEnvVarName];
+            if (bool.TryParse(disableAutoRegistrationStr, out bool disableAutoRegistration) && disableAutoRegistration)
+                return;
+
             if (string.IsNullOrWhiteSpace(monitoringServiceUrl))
                 throw new ArgumentException("Argument is empty", nameof(monitoringServiceUrl));
+
             if (log == null)
                 log = new LogToConsole();
+
             try
             {
                 string myMonitoringUrl = configuration[_myMonitoringUrlEnvVarName];
