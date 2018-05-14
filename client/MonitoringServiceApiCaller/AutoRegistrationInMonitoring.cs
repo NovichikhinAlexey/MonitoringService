@@ -48,7 +48,7 @@ namespace Lykke.MonitoringServiceApiCaller
                 if (string.IsNullOrWhiteSpace(myMonitoringUrl))
                 {
                     myMonitoringUrl = _missingEnvVarUrl;
-                    log.WriteInfo("Auto-registration in monitoring", "", $"{_myMonitoringUrlEnvVarName} environment variable is not found. Using {myMonitoringUrl} for monitoring registration");
+                    log.WriteMonitor("Auto-registration in monitoring", "", $"{_myMonitoringUrlEnvVarName} environment variable is not found. Using {myMonitoringUrl} for monitoring registration");
                 }
                 string myMonitoringName = configuration[_myMonitoringNameEnvVarName];
                 if (string.IsNullOrWhiteSpace(myMonitoringName))
@@ -60,7 +60,7 @@ namespace Lykke.MonitoringServiceApiCaller
                         Url = myMonitoringUrl,
                         ServiceName = myMonitoringName,
                     });
-                log.WriteInfo("Auto-registration in monitoring", "", $"Auto-registered in Monitoring with name {myMonitoringName} on {myMonitoringUrl}");
+                log.WriteMonitor("Auto-registration in monitoring", "", $"Auto-registered in Monitoring with name {myMonitoringName} on {myMonitoringUrl}");
             }
             catch (Exception ex)
             {
