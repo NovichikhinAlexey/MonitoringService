@@ -15,6 +15,7 @@ namespace Lykke.MonitoringServiceApiCaller
         private const string _myMonitoringUrlEnvVarName = "MyMonitoringUrl";
         private const string _missingEnvVarUrl = "0.0.0.0";
         private const string _myMonitoringNameEnvVarName = "MyMonitoringName";
+        private const string _disableAutoRegistrationEnvVarName = "DisableAutoRegistrationInMonitoring";
 
         /// <summary>
         /// Registers calling application in monitoring service based on application url from environemnt variable.
@@ -30,17 +31,24 @@ namespace Lykke.MonitoringServiceApiCaller
         {
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
+
+            string disableAutoRegistrationStr = configuration[_disableAutoRegistrationEnvVarName];
+            if (bool.TryParse(disableAutoRegistrationStr, out bool disableAutoRegistration) && disableAutoRegistration)
+                return;
+
             if (string.IsNullOrWhiteSpace(monitoringServiceUrl))
                 throw new ArgumentException("Argument is empty", nameof(monitoringServiceUrl));
+
             if (log == null)
                 log = new LogToConsole();
+
             try
             {
                 string myMonitoringUrl = configuration[_myMonitoringUrlEnvVarName];
                 if (string.IsNullOrWhiteSpace(myMonitoringUrl))
                 {
                     myMonitoringUrl = _missingEnvVarUrl;
-                    log.WriteInfo("Auto-registration in monitoring", "", $"{_myMonitoringUrlEnvVarName} environment variable is not found. Using {myMonitoringUrl} for monitoring registration");
+                    log.WriteMonitor("Auto-registration in monitoring", "", $"{_myMonitoringUrlEnvVarName} environment variable is not found. Using {myMonitoringUrl} for monitoring registration");
                 }
                 string myMonitoringName = configuration[_myMonitoringNameEnvVarName];
                 if (string.IsNullOrWhiteSpace(myMonitoringName))
@@ -52,7 +60,7 @@ namespace Lykke.MonitoringServiceApiCaller
                         Url = myMonitoringUrl,
                         ServiceName = myMonitoringName,
                     });
-                log.WriteInfo("Auto-registration in monitoring", "", $"Auto-registered in Monitoring with name {myMonitoringName} on {myMonitoringUrl}");
+                log.WriteMonitor("Auto-registration in monitoring", "", $"Auto-registered in Monitoring with name {myMonitoringName} on {myMonitoringUrl}");
             }
             catch (Exception ex)
             {
