@@ -65,15 +65,15 @@ namespace Lykke.MonitoringServiceApiCaller
                 try
                 {
                     var monitoringRegistration = await monitoringService.GetService(myMonitoringName);
-                    if (monitoringRegistration.Url != myMonitoringUrl)
-                    {
-                        log.WriteMonitor("Auto-registration in monitoring", podTag, $"There is a registration for {myMonitoringName} in monitoring service!");
+                    if (monitoringRegistration.Url == myMonitoringUrl)
+                        return;
 
-                        myMonitoringUrl = _missingEnvVarUrl;
-                        if (string.IsNullOrEmpty(podTag))
-                            podTag = Guid.NewGuid().ToString();
-                        myMonitoringName = $"{myMonitoringName}-{podTag}";
-                    }
+                    log.WriteMonitor("Auto-registration in monitoring", podTag, $"There is a registration for {myMonitoringName} in monitoring service!");
+
+                    myMonitoringUrl = _missingEnvVarUrl;
+                    if (string.IsNullOrEmpty(podTag))
+                        podTag = Guid.NewGuid().ToString();
+                    myMonitoringName = $"{myMonitoringName}-{podTag}";
                 }
                 catch (HttpOperationException)
                 {
