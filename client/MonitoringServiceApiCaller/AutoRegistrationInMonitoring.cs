@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.Rest;
+using AsyncFriendlyStackTrace;
 using Common.Log;
 using Lykke.MonitoringServiceApiCaller.Models;
 
@@ -71,9 +72,8 @@ namespace Lykke.MonitoringServiceApiCaller
                     log.WriteMonitor("Auto-registration in monitoring", podTag, $"There is a registration for {myMonitoringName} in monitoring service!");
 
                     myMonitoringUrl = _missingEnvVarUrl;
-                    if (string.IsNullOrEmpty(podTag))
-                        podTag = Guid.NewGuid().ToString();
-                    myMonitoringName = $"{myMonitoringName}-{podTag}";
+                    string instanceTag = string.IsNullOrEmpty(podTag) ? Guid.NewGuid().ToString() : podTag;
+                    myMonitoringName = $"{myMonitoringName}-{instanceTag}";
                 }
                 catch (HttpOperationException)
                 {
@@ -90,7 +90,7 @@ namespace Lykke.MonitoringServiceApiCaller
             }
             catch (Exception ex)
             {
-                log.WriteMonitor("Auto-registration in monitoring", podTag, ex.ToString());
+                log.WriteMonitor("Auto-registration in monitoring", podTag, ex.ToAsyncString());
             }
         }
     }
