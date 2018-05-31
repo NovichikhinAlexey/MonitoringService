@@ -1,7 +1,7 @@
 ﻿using Lykke.MonitoringServiceApiCaller.Models;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Lykke.MonitoringServiceApiCaller
@@ -15,7 +15,7 @@ namespace Lykke.MonitoringServiceApiCaller
 
         public MonitoringServiceFacade(string monitoringServiceUrl)
         {
-            _monitoringService = new MonitoringService(new Uri(monitoringServiceUrl));
+            _monitoringService = new MonitoringService(new Uri(monitoringServiceUrl), new HttpClient());
         }
 
         public MonitoringServiceFacade(IMonitoringService monitoringService)
