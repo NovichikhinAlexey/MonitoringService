@@ -30,7 +30,7 @@ namespace Lykke.MonitoringServiceApiCaller
         /// <param name="monitoringServiceUrl">Monitoring service url.</param>
         /// <param name="log">ILog implementation. LogToConsole is used on case this parmeter is null.</param>
         /// <returns></returns>
-        [Obsolete("User RegisterInMonitorungAsync extension method")]
+        [Obsolete("User RegisterInMonitoringServiceAsync extension method")]
         public static async Task RegisterAsync(
             IConfigurationRoot configuration,
             string monitoringServiceUrl,
@@ -105,7 +105,7 @@ namespace Lykke.MonitoringServiceApiCaller
         /// <param name="monitoringServiceUrl">Monitoring service url.</param>
         /// <param name="healthNotifier">Health notifier</param>
         /// <returns></returns>
-        public static async Task RegisterInMonitorungAsync(
+        public static async Task RegisterInMonitoringServiceAsync(
             [NotNull] this IConfigurationRoot configuration,
             [NotNull] string monitoringServiceUrl,
             [NotNull] IHealthNotifier healthNotifier)
