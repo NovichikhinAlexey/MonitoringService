@@ -26,8 +26,7 @@ namespace Lykke.MonitoringServiceApiCaller
         /// <param name="configuration">Application configuration that is used for environemnt variable search.</param>
         /// <param name="monitoringServiceUrl">Monitoring service url.</param>
         /// <param name="log">ILog implementation. LogToConsole is used on case this parmeter is null.</param>
-        /// <returns></returns>
-        public async static Task RegisterAsync(
+        public static async Task RegisterAsync(
             IConfigurationRoot configuration,
             string monitoringServiceUrl,
             ILog log)
@@ -37,10 +36,13 @@ namespace Lykke.MonitoringServiceApiCaller
 
             string disableAutoRegistrationStr = configuration[_disableAutoRegistrationEnvVarName];
             if (bool.TryParse(disableAutoRegistrationStr, out bool disableAutoRegistration) && disableAutoRegistration)
+            {
+                log.WriteMonitor("Auto-registration in monitoring", "", $"Auto-registration is disabled");
                 return;
+            }
 
             if (string.IsNullOrWhiteSpace(monitoringServiceUrl))
-                throw new ArgumentException("Argument is empty", nameof(monitoringServiceUrl));
+                throw new ArgumentNullException(nameof(monitoringServiceUrl));
 
             if (log == null)
                 throw new ArgumentNullException(nameof(log));
@@ -67,7 +69,10 @@ namespace Lykke.MonitoringServiceApiCaller
                 {
                     var monitoringRegistration = await monitoringService.GetService(myMonitoringName);
                     if (monitoringRegistration.Url == myMonitoringUrl)
+                    {
+                        log.WriteMonitor("Auto-registration in monitoring", podTag, $"Service is already registered in monitoring with such url. Skipping.");
                         return;
+                    }
 
                     if (monitoringRegistration.Url != _missingEnvVarUrl)
                     {
