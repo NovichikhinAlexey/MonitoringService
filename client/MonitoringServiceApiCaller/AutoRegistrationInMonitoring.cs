@@ -34,6 +34,9 @@ namespace Lykke.MonitoringServiceApiCaller
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
 
+            if (log == null)
+                throw new ArgumentNullException(nameof(log));
+
             string disableAutoRegistrationStr = configuration[_disableAutoRegistrationEnvVarName];
             if (bool.TryParse(disableAutoRegistrationStr, out bool disableAutoRegistration) && disableAutoRegistration)
             {
@@ -43,9 +46,6 @@ namespace Lykke.MonitoringServiceApiCaller
 
             if (string.IsNullOrWhiteSpace(monitoringServiceUrl))
                 throw new ArgumentNullException(nameof(monitoringServiceUrl));
-
-            if (log == null)
-                throw new ArgumentNullException(nameof(log));
 
             string podTag = configuration[_podNameEnvVarName] ?? "";
 
