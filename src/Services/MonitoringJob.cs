@@ -21,8 +21,7 @@ namespace Services
         private readonly IIsAliveService _isAliveService;
         private readonly INotifyingLimitSettings _notifyingLimitSettings;
         private readonly IApiHealthCheckErrorRepository _apiHealthCheckErrorRepository;
-        private readonly object _failedChecksLock = new object();
-        private readonly object _resilienceLockObj = new object();
+        private readonly object _lock = new object();
 
         public MonitoringJob(
             IMonitoringService monitoringService,
@@ -43,7 +42,7 @@ namespace Services
         public async Task CheckJobs()
         {
             DateTime now = DateTime.UtcNow;
-            IEnumerable<IMonitoringObject> jobsMonitoring = (await GetMonitoringObjectsForProcessing(x => string.IsNullOrEmpty(x.Url)))?.ToList();
+            List<IMonitoringObject> jobsMonitoring = await GetMonitoringObjectsForProcessing(x => string.IsNullOrEmpty(x.Url));
             List<IMonitoringObject> fireNotificationsFor = new List<IMonitoringObject>();
 
             foreach (var @object in jobsMonitoring)
@@ -67,49 +66,35 @@ namespace Services
 
         public async Task CheckAPIs()
         {
-            IEnumerable<IMonitoringObject> apisMonitoring = (await GetMonitoringObjectsForProcessing(x => !string.IsNullOrEmpty(x.Url)))?.ToList();
-            List<Task<IApiStatusObject>> pendingHttpChecks = new List<Task<IApiStatusObject>>(apisMonitoring.Count());
-            IDictionary<string, IMonitoringObject> serviceNameMonitoringObjectMapping = apisMonitoring.ToDictionary(x => x.ServiceName);
-            IDictionary<Task<IApiStatusObject>, IMonitoringObject> requestServiceMapping = new Dictionary<Task<IApiStatusObject>, IMonitoringObject>();
+            List<IMonitoringObject> apisMonitoring = await GetMonitoringObjectsForProcessing(x => !string.IsNullOrEmpty(x.Url));
+
             DateTime now = DateTime.UtcNow;
-
-            foreach (var api in apisMonitoring)
+            List<Task> recipientChecks = new List<Task>(apisMonitoring.Count);
+            var issues = new List<ApiHealthCheckError>();
+            foreach (var monitoringItem in apisMonitoring)
             {
-                CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(_settings.PingTimeoutInSeconds));
-
-                Task<IApiStatusObject> task = _isAliveService.GetStatusAsync(api.Url, cts.Token);
-                pendingHttpChecks.Add(task);
-                requestServiceMapping[task] = api;
-            }
-
-            var recipientChecks = new List<Task>(apisMonitoring.Count());
-            var failedChecks = new List<ApiHealthCheckError>(apisMonitoring.Count());
-            var resilienceChecks = new List<ApiHealthCheckError>();
-            foreach (var item in pendingHttpChecks)
-            {
-                var serviceName = requestServiceMapping[item].ServiceName;
-
                 var task = Task.Run(async () =>
                 {
                     try
                     {
-                        IApiStatusObject statusObject = await item;
-                        requestServiceMapping[item].Version = statusObject.Version;
-                        requestServiceMapping[item].LastTime = now;
+                        CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(_settings.PingTimeoutInSeconds));
+                        IApiStatusObject statusObject = await _isAliveService.GetStatusAsync(monitoringItem.Url, cts.Token);
+                        monitoringItem.Version = statusObject.Version;
+                        monitoringItem.LastTime = now;
 
-                        HandleResilience(resilienceChecks, statusObject.IssueIndicators, serviceName);
+                        HandleResilience(issues, statusObject.IssueIndicators, monitoringItem);
                     }
                     catch (OperationCanceledException)
                     {
-                        GenerateError(failedChecks, now, "Timeout", serviceName);
+                        GenerateError(issues, now, "Timeout", monitoringItem);
                     }
                     catch (SimpleHttpResponseException e)
                     {
-                        GenerateError(failedChecks, now, e.StatusCode.ToString(), serviceName);
+                        GenerateError(issues, now, e.StatusCode.ToString(), monitoringItem);
                     }
                     catch (Exception e)
                     {
-                        GenerateError(failedChecks, now, $"Unexpected exception: {e.GetBaseException().Message}", serviceName);
+                        GenerateError(issues, now, $"Unexpected exception: {e.GetBaseException().Message}", monitoringItem);
                     }
                 });
 
@@ -118,24 +103,9 @@ namespace Services
 
             await Task.WhenAll(recipientChecks);
 
-            foreach (var error in failedChecks)
+            foreach (var issue in issues)
             {
-                IMonitoringObject mObject = serviceNameMonitoringObjectMapping[error.ServiceName];
-                await _apiHealthCheckErrorRepository.InsertAsync((IApiHealthCheckError)error);
-                await _log.WriteMonitorAsync(
-                    nameof(MonitoringJob),
-                    nameof(CheckAPIs),
-                    $"Service url check failed for {error.ServiceName} (URL:{mObject.Url}), reason: {error.LastError}!");
-            }
-
-            foreach (var issue in resilienceChecks)
-            {
-                var mObject = serviceNameMonitoringObjectMapping[issue.ServiceName];
-                await _apiHealthCheckErrorRepository.InsertAsync((IApiHealthCheckError)issue);
-                await _log.WriteMonitorAsync(
-                    nameof(MonitoringJob),
-                    nameof(CheckAPIs),
-                    $"Health check failed for {issue.ServiceName} (URL:{mObject.Url}), reason: {issue.LastError}!");
+                await _apiHealthCheckErrorRepository.InsertAsync(issue);
             }
 
             foreach (var api in apisMonitoring)
@@ -146,54 +116,67 @@ namespace Services
 
         #region Private
 
-        /// <summary>
-        /// If api send any failing indicators, they are added to resilience output
-        /// </summary>
-        /// <param name="issues"></param>
-        /// <param name="issueIndicators"></param>
-        /// <param name="serviceName"></param>
-        private void HandleResilience(ICollection<ApiHealthCheckError> issues, 
-            IEnumerable<IssueIndicatorObject> issueIndicators, string serviceName)
+        /// <summary>If api send any failing indicators, they are added to resilience output</summary>
+        private void HandleResilience(
+            ICollection<ApiHealthCheckError> issues,
+            IEnumerable<IssueIndicatorObject> issueIndicators,
+            IMonitoringObject mObject)
         {
-            var indicators = _notifyingLimitSettings.CheckAndUpdateLimits(serviceName, issueIndicators);
+            var indicators = _notifyingLimitSettings.CheckAndUpdateLimits(mObject.ServiceName, issueIndicators);
 
             if (indicators.Count == 0)
                 return;
 
-            lock (_resilienceLockObj)
+            string errorMessage = string.Join("; ", indicators.Select(o => o.Type + ": " + o.Value));
+
+            lock (_lock)
             {
                 issues.Add(new ApiHealthCheckError()
                 {
                     Date = DateTime.UtcNow,
-                    LastError = string.Join("; ", indicators.Select(o => o.Type + ": " + o.Value)),
-                    ServiceName = serviceName,
+                    LastError = errorMessage,
+                    ServiceName = mObject.ServiceName,
                 });
             }
+
+            _log.WriteMonitor(
+                nameof(MonitoringJob),
+                nameof(CheckAPIs),
+                $"Service url check failed for {mObject.ServiceName} (URL:{mObject.Url}), reason: {errorMessage}!");
         }
 
-        private void GenerateError(List<ApiHealthCheckError> errors, DateTime now, string errorMessage, string serviceName)
+        private void GenerateError(
+            List<ApiHealthCheckError> errors,
+            DateTime now,
+            string errorMessage,
+            IMonitoringObject mObject)
         {
             var error = new ApiHealthCheckError()
             {
                 Date = now,
                 LastError = errorMessage,
-                ServiceName = serviceName,
+                ServiceName = mObject.ServiceName,
             };
 
-            lock (_failedChecksLock)
+            lock(errors)
             {
                 errors.Add(error);
             }
+
+            _log.WriteMonitor(
+                nameof(MonitoringJob),
+                nameof(CheckAPIs),
+                $"Service url check failed for {mObject.ServiceName}(URL:{mObject.Url}), reason: {errorMessage}!");
         }
 
-        private async Task<IEnumerable<IMonitoringObject>> GetMonitoringObjectsForProcessing(Func<IMonitoringObject, bool> filter)
+        private async Task<List<IMonitoringObject>> GetMonitoringObjectsForProcessing(Func<IMonitoringObject, bool> filter)
         {
             var now = DateTime.UtcNow;
             Func<IMonitoringObject, bool> decoratedFilter = (@object) => !(@object.SkipCheckUntil > now) && filter(@object);
             var allMonitoringObjects = await _monitoringService.GetCurrentSnapshot();
             var filteredObjects = allMonitoringObjects.Where(@object => decoratedFilter(@object));
 
-            return filteredObjects;
+            return filteredObjects.ToList();
         }
 
         #endregion
