@@ -30,6 +30,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="MonitoringService.Extend.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AsyncFriendlyStackTrace" Version="1.6.0" />
     <PackageReference Include="Lykke.Common" Version="6.5.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.0.1" />
