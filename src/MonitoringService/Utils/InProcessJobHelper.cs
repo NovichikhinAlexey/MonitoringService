@@ -19,7 +19,7 @@ namespace MonitoringService.Utils
                     }
                     catch (Exception e)
                     {
-                        log.WriteErrorAsync("InProcessJobHelper", "StartJob", e).Wait();
+                        log.WriteError("InProcessJobHelper", "StartJob", e);
                     }
 
                     await Task.Delay(frequencyInSeconds * 1000, cToken);

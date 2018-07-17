@@ -74,7 +74,7 @@ namespace MonitoringService
             }
             catch (Exception ex)
             {
-                Log?.WriteFatalErrorAsync(nameof(Startup), nameof(ConfigureServices), "", ex).GetAwaiter().GetResult();
+                Log?.WriteFatalError(nameof(Startup), nameof(ConfigureServices), ex);
                 throw;
             }
         }
@@ -118,11 +118,11 @@ namespace MonitoringService
 
                 appLifetime.ApplicationStarted.Register(() => StartApplication().GetAwaiter().GetResult());
                 appLifetime.ApplicationStopping.Register(() => StopApplication().GetAwaiter().GetResult());
-                appLifetime.ApplicationStopped.Register(() => CleanUp().GetAwaiter().GetResult());
+                appLifetime.ApplicationStopped.Register(() => CleanUp());
             }
             catch (Exception ex)
             {
-                Log?.WriteFatalErrorAsync(nameof(Startup), nameof(Configure), "", ex).GetAwaiter().GetResult();
+                Log?.WriteFatalError(nameof(Startup), nameof(Configure), ex);
                 throw;
             }
         }
@@ -133,7 +133,7 @@ namespace MonitoringService
             {
                 // NOTE: Service not yet recieve and process requests here
                 var backupService = ApplicationContainer.Resolve<IBackUpService>();
-                backupService.RestoreBackupAsync().Wait();
+                await backupService.RestoreBackupAsync();
 
                 IMonitoringJob job = ApplicationContainer.Resolve<IMonitoringJob>();
                 IBaseSettings baseSettings = ApplicationContainer.Resolve<IBaseSettings>();
@@ -148,11 +148,11 @@ namespace MonitoringService
                     baseSettings.MonitoringApiFrequencyInSeconds,
                     Log);
 
-                await Log.WriteMonitorAsync("", "", "Started");
+                Log.WriteMonitor("", "", "Started");
             }
             catch (Exception ex)
             {
-                await Log.WriteFatalErrorAsync(nameof(Startup), nameof(StartApplication), "", ex);
+                Log.WriteFatalError(nameof(Startup), nameof(StartApplication), ex);
                 throw;
             }
         }
@@ -165,24 +165,24 @@ namespace MonitoringService
 
                 // NOTE: Service still can recieve and process requests here, so take care about it if you add logic here.
                 var backupService = ApplicationContainer.Resolve<IBackUpService>();
-                backupService.CreateBackupAsync().Wait();
+                await backupService.CreateBackupAsync();
             }
             catch (Exception ex)
             {
                 if (Log != null)
-                    await Log.WriteFatalErrorAsync(nameof(Startup), nameof(StopApplication), "", ex);
+                    Log.WriteFatalError(nameof(Startup), nameof(StopApplication), ex);
                 throw;
             }
         }
 
-        private async Task CleanUp()
+        private void CleanUp()
         {
             try
             {
                 // NOTE: Service can't recieve and process requests here, so you can destroy all resources
 
                 if (Log != null)
-                    await Log.WriteMonitorAsync("", "", "Terminating");
+                    Log.WriteMonitor("", "", "Terminating");
 
                 ApplicationContainer.Dispose();
             }
@@ -190,7 +190,7 @@ namespace MonitoringService
             {
                 if (Log != null)
                 {
-                    await Log.WriteFatalErrorAsync(nameof(Startup), nameof(CleanUp), "", ex);
+                    Log.WriteFatalError(nameof(Startup), nameof(CleanUp), ex);
                     (Log as IDisposable)?.Dispose();
                 }
                 throw;
@@ -209,7 +209,7 @@ namespace MonitoringService
 
             if (string.IsNullOrEmpty(dbLogConnectionString))
             {
-                console.WriteWarningAsync(nameof(Startup), nameof(CreateLogWithSlack), "Table loggger is not inited").Wait();
+                console.WriteWarning(nameof(Startup), nameof(CreateLogWithSlack), "Table loggger is not inited");
                 return aggregateLogger;
             }
 
