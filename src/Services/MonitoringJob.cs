@@ -7,6 +7,7 @@ using Core.Services;
 using Core.Settings;
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,7 +22,6 @@ namespace Services
         private readonly IIsAliveService _isAliveService;
         private readonly INotifyingLimitSettings _notifyingLimitSettings;
         private readonly IApiHealthCheckErrorRepository _apiHealthCheckErrorRepository;
-        private readonly object _lock = new object();
 
         public MonitoringJob(
             IMonitoringService monitoringService,
@@ -70,7 +70,7 @@ namespace Services
 
             DateTime now = DateTime.UtcNow;
             List<Task> recipientChecks = new List<Task>(apisMonitoring.Count);
-            var issues = new List<ApiHealthCheckError>();
+            var issues = new ConcurrentBag<ApiHealthCheckError>();
             foreach (var monitoringItem in apisMonitoring)
             {
                 var task = Task.Run(async () =>
@@ -118,7 +118,7 @@ namespace Services
 
         /// <summary>If api send any failing indicators, they are added to resilience output</summary>
         private void HandleResilience(
-            ICollection<ApiHealthCheckError> issues,
+            ConcurrentBag<ApiHealthCheckError> issues,
             IEnumerable<IssueIndicatorObject> issueIndicators,
             IMonitoringObject mObject)
         {
@@ -129,15 +129,12 @@ namespace Services
 
             string errorMessage = string.Join("; ", indicators.Select(o => o.Type + ": " + o.Value));
 
-            lock (_lock)
+            issues.Add(new ApiHealthCheckError()
             {
-                issues.Add(new ApiHealthCheckError()
-                {
-                    Date = DateTime.UtcNow,
-                    LastError = errorMessage,
-                    ServiceName = mObject.ServiceName,
-                });
-            }
+                Date = DateTime.UtcNow,
+                LastError = errorMessage,
+                ServiceName = mObject.ServiceName,
+            });
 
             _log.WriteMonitor(
                 nameof(MonitoringJob),
@@ -146,7 +143,7 @@ namespace Services
         }
 
         private void GenerateError(
-            List<ApiHealthCheckError> errors,
+            ConcurrentBag<ApiHealthCheckError> errors,
             DateTime now,
             string errorMessage,
             IMonitoringObject mObject)
@@ -158,10 +155,7 @@ namespace Services
                 ServiceName = mObject.ServiceName,
             };
 
-            lock(_lock)
-            {
-                errors.Add(error);
-            }
+            errors.Add(error);
 
             _log.WriteMonitor(
                 nameof(MonitoringJob),
