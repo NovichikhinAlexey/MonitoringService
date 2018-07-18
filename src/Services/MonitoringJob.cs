@@ -7,6 +7,7 @@ using Core.Services;
 using Core.Settings;
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,7 +21,6 @@ namespace Services
         private readonly ILog _log;
         private readonly IIsAliveService _isAliveService;
         private readonly IApiHealthCheckErrorRepository _apiHealthCheckErrorRepository;
-        private readonly object _lock = new object();
 
         public MonitoringJob(
             IMonitoringService monitoringService,
@@ -68,7 +68,7 @@ namespace Services
 
             DateTime now = DateTime.UtcNow;
             List<Task> recipientChecks = new List<Task>(apisMonitoring.Count);
-            var errors = new List<ApiHealthCheckError>();
+            var errors = new ConcurrentBag<ApiHealthCheckError>();
             foreach (var monitoringItem in apisMonitoring)
             {
                 var task = Task.Run(async () =>
@@ -113,7 +113,7 @@ namespace Services
         #region Private
 
         private void GenerateError(
-            List<ApiHealthCheckError> errors,
+            ConcurrentBag<ApiHealthCheckError> errors,
             DateTime now,
             string errorMessage,
             IMonitoringObject mObject)
@@ -125,10 +125,7 @@ namespace Services
                 ServiceName = mObject.ServiceName,
             };
 
-            lock(_lock)
-            {
-                errors.Add(error);
-            }
+            errors.Add(error);
 
             _log.WriteMonitor(
                 nameof(MonitoringJob),
