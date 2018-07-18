@@ -20,7 +20,7 @@ namespace Services
         private readonly ILog _log;
         private readonly IIsAliveService _isAliveService;
         private readonly IApiHealthCheckErrorRepository _apiHealthCheckErrorRepository;
-        private readonly object _failedChecksLock = new object();
+        private readonly object _lock = new object();
 
         public MonitoringJob(
             IMonitoringService monitoringService,
@@ -125,7 +125,7 @@ namespace Services
                 ServiceName = mObject.ServiceName,
             };
 
-            lock(errors)
+            lock(_lock)
             {
                 errors.Add(error);
             }
