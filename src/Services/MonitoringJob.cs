@@ -158,7 +158,7 @@ namespace Services
                 ServiceName = mObject.ServiceName,
             };
 
-            lock(errors)
+            lock(_lock)
             {
                 errors.Add(error);
             }
