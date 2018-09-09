@@ -73,7 +73,7 @@ namespace Lykke.MonitoringServiceApiCaller
                 try
                 {
                     var monitoringRegistration = await monitoringService.GetService(myMonitoringName);
-                    if (monitoringRegistration.Url == myMonitoringUrl)
+                    if (monitoringRegistration.Url.ToLower() == myMonitoringUrl.ToLower())
                     {
                         log.WriteMonitor("Auto-registration in monitoring", podTag, $"Service is already registered in monitoring with such url. Skipping.");
                         return;
