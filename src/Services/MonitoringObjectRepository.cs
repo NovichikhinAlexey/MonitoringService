@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core.Models;
 using Core.Repositories;
@@ -7,11 +8,11 @@ namespace Services
 {
     public class MonitoringObjectRepository : IMonitoringObjectRepository
     {
-        private readonly IDictionary<string, IMonitoringObject> _monitoringDictionary;
+        private readonly ConcurrentDictionary<string, IMonitoringObject> _monitoringDictionary;
 
         public MonitoringObjectRepository()
         {
-            _monitoringDictionary = new Dictionary<string, IMonitoringObject>();
+            _monitoringDictionary = new ConcurrentDictionary<string, IMonitoringObject>();
         }
 
         public Task<IEnumerable<IMonitoringObject>> GetAllAsync()
@@ -33,9 +34,27 @@ namespace Services
             return Task.CompletedTask;
         }
 
-        public Task RemoveAsync(string serviceName)
+        public Task RemoveByNameAsync(string serviceName)
         {
-            _monitoringDictionary.Remove(serviceName);
+            _monitoringDictionary.TryRemove(serviceName, out _);
+
+            return Task.CompletedTask;
+        }
+
+        public Task RemoveByUrlAsync(string url)
+        {
+            IMonitoringObject objToDelete = null;
+            foreach (var monitoringObject in _monitoringDictionary.Values)
+            {
+                if (monitoringObject.Url != url)
+                    continue;
+
+                objToDelete = monitoringObject;
+                break;
+            }
+
+            if (objToDelete != null)
+                _monitoringDictionary.TryRemove(objToDelete.ServiceName, out _);
 
             return Task.CompletedTask;
         }

@@ -9,6 +9,7 @@ namespace Core.Repositories
         Task InsertAsync(IMonitoringObject mObject);
         Task<IEnumerable<IMonitoringObject>> GetAllAsync();
         Task<IMonitoringObject> GetByNameAsync(string serviceName);
-        Task RemoveAsync(string serviceName);
+        Task RemoveByNameAsync(string serviceName);
+        Task RemoveByUrlAsync(string url);
     }
 }

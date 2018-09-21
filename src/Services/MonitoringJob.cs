@@ -105,7 +105,7 @@ namespace Services
 
             foreach (var api in apisMonitoring)
             {
-                await _monitoringService.Ping(api);
+                await _monitoringService.PingAsync(api);
             }
         }
 
@@ -136,7 +136,7 @@ namespace Services
         {
             var now = DateTime.UtcNow;
             Func<IMonitoringObject, bool> decoratedFilter = (@object) => !(@object.SkipCheckUntil > now) && filter(@object);
-            var allMonitoringObjects = await _monitoringService.GetCurrentSnapshot();
+            var allMonitoringObjects = await _monitoringService.GetCurrentSnapshotAsync();
             var filteredObjects = allMonitoringObjects.Where(@object => decoratedFilter(@object));
 
             return filteredObjects.ToList();

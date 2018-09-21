@@ -26,7 +26,7 @@ namespace MonitoringService.Controllers
         [ProducesResponseType(typeof(ListDataMonitoringObjectModel), 200)]
         public async Task<ListDataMonitoringObjectModel> Get()
         {
-            var snapshot = await _monitoringService.GetCurrentSnapshot();
+            var snapshot = await _monitoringService.GetCurrentSnapshotAsync();
             var model = snapshot
                 .Select(x => new MonitoringObjectModel
                 {
@@ -47,7 +47,7 @@ namespace MonitoringService.Controllers
         [ProducesResponseType(typeof(MonitoringObjectModel), 200)]
         public async Task<MonitoringObjectModel> GetByServiceName([FromRoute]string serviceName)
         {
-            IMonitoringObject mObject = await _monitoringService.GetByName(serviceName);
+            IMonitoringObject mObject = await _monitoringService.GetByNameAsync(serviceName);
 
             return new MonitoringObjectModel
             {
@@ -71,7 +71,7 @@ namespace MonitoringService.Controllers
                 LastTime = DateTime.UtcNow
             };
 
-            await _monitoringService.Ping(mappedModel);
+            await _monitoringService.PingAsync(mappedModel);
         }
 
         [HttpPost]
@@ -79,7 +79,7 @@ namespace MonitoringService.Controllers
         [SwaggerOperation("Mute")]
         public async Task Mute([FromBody]MonitoringObjectMuteModel model)
         {
-            await _monitoringService.Mute(model.ServiceName, model.Minutes ?? 60);
+            await _monitoringService.MuteAsync(model.ServiceName, model.Minutes ?? 60);
         }
 
         [HttpPost]
@@ -87,15 +87,23 @@ namespace MonitoringService.Controllers
         [SwaggerOperation("Unmute")]
         public async Task Unmute([FromBody]MonitoringObjectUnmuteModel model)
         {
-            await _monitoringService.Unmute(model.ServiceName);
+            await _monitoringService.UnmuteAsync(model.ServiceName);
         }
 
         [HttpDelete]
-        [SwaggerOperation("Remove")]
+        [SwaggerOperation("RemoveByName")]
         [Route("remove/{serviceName}")]
         public async Task RemoveByServiceName([FromRoute]string serviceName)
         {
-            await _monitoringService.Remove(serviceName);
+            await _monitoringService.RemoveByNameAsync(serviceName);
+        }
+
+        [HttpDelete]
+        [SwaggerOperation("RemoveByUrl")]
+        [Route("removebyurl")]
+        public async Task RemoveByUrl([FromQuery] string url)
+        {
+            await _monitoringService.RemoveByUrlAsync(url);
         }
     }
 }

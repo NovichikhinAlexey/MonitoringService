@@ -56,6 +56,11 @@ namespace Lykke.MonitoringServiceApiCaller
             await Monitoring.RemoveByServiceName(serviceName);
         }
 
+        public async Task RemoveByUrl(string url)
+        {
+            await Monitoring.RemoveByUrl(url);
+        }
+
         public async Task Mute(MonitoringObjectMuteModel muteModel)
         {
             await Monitoring.Mute(muteModel);

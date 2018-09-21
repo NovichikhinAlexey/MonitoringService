@@ -51,7 +51,7 @@ namespace MonitoringService.Test
 
             #region Act
 
-            var objs = await monitoringService.GetCurrentSnapshot();
+            var objs = await monitoringService.GetCurrentSnapshotAsync();
 
             #endregion Act
 

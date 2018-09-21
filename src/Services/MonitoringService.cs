@@ -19,7 +19,7 @@ namespace Services
             _apiMonitoringObjectRepository = apiMonitoringObjectRepository;
         }
 
-        public async Task<IMonitoringObject> GetByName(string serviceName)
+        public async Task<IMonitoringObject> GetByNameAsync(string serviceName)
         {
             IMonitoringObject mObject = await _monitorObjectRepository.GetByNameAsync(serviceName) ??
                 await _apiMonitoringObjectRepository.GetByNameAsync(serviceName);
@@ -27,34 +27,40 @@ namespace Services
             return mObject;
         }
 
-        public async Task<IEnumerable<IMonitoringObject>> GetCurrentSnapshot()
+        public async Task<IEnumerable<IMonitoringObject>> GetCurrentSnapshotAsync()
         {
             var inMemmory = await _monitorObjectRepository.GetAllAsync();
 
             return inMemmory;
         }
 
-        public async Task Mute(string serviceName, int minutes)
+        public async Task MuteAsync(string serviceName, int minutes)
         {
-            IMonitoringObject mObject = await GetByName(serviceName);
+            IMonitoringObject mObject = await GetByNameAsync(serviceName);
             mObject.SkipCheckUntil = DateTime.UtcNow.AddMinutes(minutes);
             await InsertAsync(mObject);
         }
 
-        public async Task Ping(IMonitoringObject mObject)
+        public async Task PingAsync(IMonitoringObject mObject)
         {
             await InsertAsync(mObject);
         }
 
-        public async Task Remove(string serviceName)
+        public async Task RemoveByNameAsync(string serviceName)
         {
-            await _monitorObjectRepository.RemoveAsync(serviceName);
-            await _apiMonitoringObjectRepository.RemoveAsync(serviceName);
+            await _monitorObjectRepository.RemoveByNameAsync(serviceName);
+            await _apiMonitoringObjectRepository.RemoveByNameAsync(serviceName);
         }
 
-        public async Task Unmute(string serviceName)
+        public async Task RemoveByUrlAsync(string url)
         {
-            IMonitoringObject mObject = await GetByName(serviceName);
+            await _monitorObjectRepository.RemoveByUrlAsync(url);
+            await _apiMonitoringObjectRepository.RemoveByUrlAsync(url);
+        }
+
+        public async Task UnmuteAsync(string serviceName)
+        {
+            IMonitoringObject mObject = await GetByNameAsync(serviceName);
             mObject.SkipCheckUntil = null;
             await InsertAsync(mObject);
         }

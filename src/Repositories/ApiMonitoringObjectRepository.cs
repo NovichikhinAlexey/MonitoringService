@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AzureStorage;
 using Core.Models;
@@ -69,9 +70,16 @@ namespace Repositories
             await _table.InsertOrReplaceAsync(entity);
         }
 
-        public async Task RemoveAsync(string serviceName)
+        public async Task RemoveByNameAsync(string serviceName)
         {
             await _table.DeleteIfExistAsync(ApiMonitoringObjectEntity.GetPartitionKey(), serviceName);
+        }
+
+        public async Task RemoveByUrlAsync(string url)
+        {
+            var tableItems = await _table.GetDataAsync(ApiMonitoringObjectEntity.GetPartitionKey(), i => i.Url == url);
+            if (tableItems.Any())
+                await _table.DeleteAsync(tableItems.First());
         }
     }
 }

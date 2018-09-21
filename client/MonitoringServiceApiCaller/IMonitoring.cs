@@ -25,5 +25,8 @@ namespace Lykke.MonitoringServiceApiCaller
 
         [Delete("/api/Monitoring/remove/{serviceName}")]
         Task RemoveByServiceName(string serviceName);
+
+        [Delete("/api/Monitoring/removebyurl")]
+        Task RemoveByUrl(string url);
     }
 }
