@@ -1,32 +1,33 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using AzureStorage.Tables;
+using Common.Log;
+using Core.Jobs;
+using Core.Services;
+using Core.Settings;
+using Lykke.AzureQueueIntegration;
+using Lykke.Common;
+using Lykke.Common.ApiLibrary.Middleware;
+using Lykke.Common.ApiLibrary.Swagger;
+using Lykke.Logs;
+using Lykke.SettingsReader;
+using Lykke.SlackNotification.AzureQueue;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Autofac;
-using Autofac.Extensions.DependencyInjection;
-using Common.Log;
-using AzureStorage.Tables;
-using Lykke.Logs;
-using Lykke.SlackNotification.AzureQueue;
-using Lykke.AzureQueueIntegration;
-using Lykke.SettingsReader;
-using Lykke.Common.ApiLibrary.Middleware;
-using Lykke.Common.ApiLibrary.Swagger;
 using MonitoringService.Dependencies;
-using Core.Settings;
-using Core.Services;
-using Core.Jobs;
 using MonitoringService.Utils;
 
 namespace MonitoringService
 {
     public class Startup
     {
-        private CancellationTokenSource _cts = new CancellationTokenSource();
+        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
         public ILog Log { get; private set; }
         public IConfigurationRoot Configuration { get; }
@@ -52,7 +53,12 @@ namespace MonitoringService
                 // Add framework services.
                 services.AddMvc();
 
-                var settingsManager = Configuration.LoadSettings<SettingsWrapper>("SettingsUrl");
+                var settingsManager = Configuration.LoadSettings<SettingsWrapper>(o =>
+                    {
+                        o.SetConnString(s => s.SlackNotifications.AzureQueue.ConnectionString);
+                        o.SetQueueName(s => s.SlackNotifications.AzureQueue.QueueName);
+                        o.SenderName = $"{AppEnvironment.Name} {AppEnvironment.Version}";
+                    });
                 Log = CreateLogWithSlack(services, settingsManager);
 
                 var builder = new ContainerBuilder();
@@ -119,7 +125,7 @@ namespace MonitoringService
 
                 appLifetime.ApplicationStarted.Register(() => StartApplication().GetAwaiter().GetResult());
                 appLifetime.ApplicationStopping.Register(() => StopApplication().GetAwaiter().GetResult());
-                appLifetime.ApplicationStopped.Register(() => CleanUp());
+                appLifetime.ApplicationStopped.Register(CleanUp);
             }
             catch (Exception ex)
             {

@@ -1,12 +1,11 @@
-﻿using AzureStorage;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AzureStorage;
+using Core.Models;
 using Core.Repositories;
 using Microsoft.WindowsAzure.Storage.Table;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.WindowsAzure.Storage;
-using Core.Models;
 
 namespace Repositories
 {
@@ -14,15 +13,8 @@ namespace Repositories
     {
         public string ServiceName
         {
-            get
-            {
-                return this.RowKey;
-            }
-
-            set
-            {
-                this.RowKey = value;
-            }
+            get => RowKey;
+            set => RowKey = value;
         }
         public string Version { get; set; }
         public string Url { get; set; }
@@ -78,9 +70,16 @@ namespace Repositories
             await _table.InsertOrReplaceAsync(entity);
         }
 
-        public async Task RemoveAsync(string serviceName)
+        public async Task RemoveByNameAsync(string serviceName)
         {
             await _table.DeleteIfExistAsync(ApiMonitoringObjectEntity.GetPartitionKey(), serviceName);
+        }
+
+        public async Task RemoveByUrlAsync(string url)
+        {
+            var tableItems = await _table.GetDataAsync(ApiMonitoringObjectEntity.GetPartitionKey(), i => i.Url == url);
+            if (tableItems.Any())
+                await _table.DeleteAsync(tableItems.First());
         }
     }
 }

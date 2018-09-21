@@ -1,9 +1,9 @@
-﻿using Core.Services;
-using System;
-using Core.Models;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Core.Models;
 using Core.Repositories;
+using Core.Services;
 
 namespace Services
 {

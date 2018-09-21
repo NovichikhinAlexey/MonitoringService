@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.PlatformAbstractions;
-using Microsoft.Rest;
 using AsyncFriendlyStackTrace;
 using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Common.Log;
 using Lykke.MonitoringServiceApiCaller.Models;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.PlatformAbstractions;
 
 namespace Lykke.MonitoringServiceApiCaller
 {
@@ -88,7 +87,7 @@ namespace Lykke.MonitoringServiceApiCaller
                         myMonitoringName = $"{myMonitoringName}-{instanceTag}";
                     }
                 }
-                catch (HttpOperationException)
+                catch
                 {
                     //Duplicated registration is not found - proceed with usual registration
                 }
@@ -175,7 +174,7 @@ namespace Lykke.MonitoringServiceApiCaller
                     var instanceTag = string.IsNullOrEmpty(podTag) ? Guid.NewGuid().ToString() : podTag;
                     myMonitoringName = $"{myMonitoringName}-{instanceTag}";
                 }
-                catch (HttpOperationException)
+                catch
                 {
                     //Duplicated registration is not found - proceed with usual registration
                 }

@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Core.Models;
+using Core.Services;
+using Lykke.MonitoringServiceApiCaller;
+using Lykke.MonitoringServiceApiCaller.Models;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using Core.Services;
-using Core.Models;
-using MonitoringService.Models;
 
 namespace MonitoringService.Controllers
 {
     [Route("api/[controller]")]
     [Produces("application/json")]
-    public class MonitoringController : Controller
+    public class MonitoringController : Controller, IMonitoring
     {
         private readonly IMonitoringService _monitoringService;
 
@@ -22,44 +23,46 @@ namespace MonitoringService.Controllers
 
         [HttpGet]
         [SwaggerOperation("Get")]
-        [ProducesResponseType(typeof(ListData<MonitoringObjectModel>), 200)]
-        public async Task<IActionResult> Get()
+        [ProducesResponseType(typeof(ListDataMonitoringObjectModel), 200)]
+        public async Task<ListDataMonitoringObjectModel> Get()
         {
-            var snapshot = await _monitoringService.GetCurrentSnapshot();
-            var model = snapshot.Select(x => new MonitoringObjectModel()
-            {
-                ServiceName = x.ServiceName,
-                Version = x.Version,
-                LastPing = x.LastTime,
-                SkipUntil = x.SkipCheckUntil,
-                Url = x.Url
-            });
+            var snapshot = await _monitoringService.GetCurrentSnapshotAsync();
+            var model = snapshot
+                .Select(x => new MonitoringObjectModel
+                {
+                    ServiceName = x.ServiceName,
+                    Version = x.Version,
+                    LastPing = x.LastTime,
+                    SkipUntil = x.SkipCheckUntil,
+                    Url = x.Url
+                })
+                .ToList();
 
-            return Ok(new ListData<MonitoringObjectModel>() { Data = model });
+            return new ListDataMonitoringObjectModel { Data = model };
         }
 
         [HttpGet]
         [Route("{serviceName}")]
         [SwaggerOperation("GetByName")]
         [ProducesResponseType(typeof(MonitoringObjectModel), 200)]
-        public async Task<IActionResult> Get([FromRoute]string serviceName)
+        public async Task<MonitoringObjectModel> GetByServiceName([FromRoute]string serviceName)
         {
-            IMonitoringObject mObject = await _monitoringService.GetByName(serviceName);
+            IMonitoringObject mObject = await _monitoringService.GetByNameAsync(serviceName);
 
-            return Ok(new MonitoringObjectModel()
+            return new MonitoringObjectModel
             {
                 LastPing = mObject.LastTime,
                 ServiceName = mObject.ServiceName,
                 SkipUntil = mObject.SkipCheckUntil,
                 Version = mObject.Version,
                 Url = mObject.Url
-            });
+            };
         }
 
         [HttpPost]
         [Route("ping")]
         [SwaggerOperation("Ping")]
-        public async Task Post([FromBody]MonitoringObjectPingModel model)
+        public async Task Ping([FromBody]MonitoringObjectPingModel model)
         {
             var mappedModel = new MonitoringObject()
             {
@@ -68,7 +71,7 @@ namespace MonitoringService.Controllers
                 LastTime = DateTime.UtcNow
             };
 
-            await _monitoringService.Ping(mappedModel);
+            await _monitoringService.PingAsync(mappedModel);
         }
 
         [HttpPost]
@@ -76,7 +79,7 @@ namespace MonitoringService.Controllers
         [SwaggerOperation("Mute")]
         public async Task Mute([FromBody]MonitoringObjectMuteModel model)
         {
-            await _monitoringService.Mute(model.ServiceName, model.Minutes);
+            await _monitoringService.MuteAsync(model.ServiceName, model.Minutes ?? 60);
         }
 
         [HttpPost]
@@ -84,15 +87,23 @@ namespace MonitoringService.Controllers
         [SwaggerOperation("Unmute")]
         public async Task Unmute([FromBody]MonitoringObjectUnmuteModel model)
         {
-            await _monitoringService.Unmute(model.ServiceName);
+            await _monitoringService.UnmuteAsync(model.ServiceName);
         }
 
         [HttpDelete]
-        [SwaggerOperation("Remove")]
+        [SwaggerOperation("RemoveByName")]
         [Route("remove/{serviceName}")]
-        public async Task Remove([FromRoute]string serviceName)
+        public async Task RemoveByServiceName([FromRoute]string serviceName)
         {
-            await _monitoringService.Remove(serviceName);
+            await _monitoringService.RemoveByNameAsync(serviceName);
+        }
+
+        [HttpDelete]
+        [SwaggerOperation("RemoveByUrl")]
+        [Route("removebyurl")]
+        public async Task RemoveByUrl([FromQuery] string url)
+        {
+            await _monitoringService.RemoveByUrlAsync(url);
         }
     }
 }

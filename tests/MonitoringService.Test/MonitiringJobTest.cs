@@ -1,4 +1,8 @@
-﻿using Common.Log;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Common.Log;
 using Core.Models;
 using Core.Repositories;
 using Core.Services;
@@ -6,10 +10,6 @@ using Core.Settings;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Services;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace MonitoringService.Test
 {
@@ -18,19 +18,18 @@ namespace MonitoringService.Test
     {
         Mock<IMonitoringService> _mockMonitoringService;
         Mock<IBaseSettings> _mockBaseSettings;
-        Mock<IApiMonitoringObjectRepository> _mockApiMonitoringObjectRepository;
         Mock<IApiHealthCheckErrorRepository> _mockApiHealthCheckErrorRepository;
         Mock<IIsAliveService> _mockIsAliveService;
         Mock<INotifyingLimitSettings> _notifyingLimitSettings;
-        public int ExpirationDateInSeconds = 60;
         Mock<ILog> _mockLogger;
+
+        public int ExpirationDateInSeconds = 60;
 
         [TestInitialize]
         public void Init()
         {
             _mockMonitoringService = new Mock<IMonitoringService>();
             _mockBaseSettings = new Mock<IBaseSettings>();
-            _mockApiMonitoringObjectRepository = new Mock<IApiMonitoringObjectRepository>();
             _mockApiHealthCheckErrorRepository = new Mock<IApiHealthCheckErrorRepository>();
             _mockIsAliveService = new Mock<IIsAliveService>();
             _notifyingLimitSettings = new Mock<INotifyingLimitSettings>();
@@ -53,7 +52,7 @@ namespace MonitoringService.Test
 
             #region SetUpMocks
 
-            _mockMonitoringService.Setup(x => x.GetCurrentSnapshot()).Returns(Task.FromResult((IEnumerable<IMonitoringObject>)repository));
+            _mockMonitoringService.Setup(x => x.GetCurrentSnapshotAsync()).Returns(Task.FromResult((IEnumerable<IMonitoringObject>)repository));
             _mockBaseSettings.Setup(x => x.MaxTimeDifferenceInSeconds).Returns(ExpirationDateInSeconds);
             //_mockIsAliveService.Setup(x => x.GetStatusAsync(url, It.IsAny<CancellationToken>()))
             //    .Returns(Task.FromException<IApiStatusObject>(new OperationCanceledException()));
@@ -95,7 +94,7 @@ namespace MonitoringService.Test
 
             #region SetUpMocks
 
-            _mockMonitoringService.Setup(x => x.GetCurrentSnapshot()).Returns(Task.FromResult((IEnumerable<IMonitoringObject>)repository));
+            _mockMonitoringService.Setup(x => x.GetCurrentSnapshotAsync()).Returns(Task.FromResult((IEnumerable<IMonitoringObject>)repository));
             _mockBaseSettings.Setup(x => x.MaxTimeDifferenceInSeconds).Returns(ExpirationDateInSeconds);
             _mockIsAliveService.Setup(x => x.GetStatusAsync(url, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromException<IApiStatusObject>(new OperationCanceledException()));
@@ -143,7 +142,7 @@ namespace MonitoringService.Test
 
             #region SetUpMocks
 
-            _mockMonitoringService.Setup(x => x.GetCurrentSnapshot()).Returns(Task.FromResult((IEnumerable<IMonitoringObject>)repository));
+            _mockMonitoringService.Setup(x => x.GetCurrentSnapshotAsync()).Returns(Task.FromResult((IEnumerable<IMonitoringObject>)repository));
             _mockBaseSettings.Setup(x => x.MaxTimeDifferenceInSeconds).Returns(ExpirationDateInSeconds);
             _mockIsAliveService.Setup(x => x.GetStatusAsync(url, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromException<IApiStatusObject>(new OperationCanceledException()));
@@ -192,7 +191,7 @@ namespace MonitoringService.Test
 
             #region SetUpMocks
 
-            _mockMonitoringService.Setup(x => x.GetCurrentSnapshot()).Returns(Task.FromResult((IEnumerable<IMonitoringObject>)repository));
+            _mockMonitoringService.Setup(x => x.GetCurrentSnapshotAsync()).Returns(Task.FromResult((IEnumerable<IMonitoringObject>)repository));
             _mockBaseSettings.Setup(x => x.MaxTimeDifferenceInSeconds).Returns(ExpirationDateInSeconds);
             var monitoringJob = GetMonitorJob();
             #endregion SetUpMocks
