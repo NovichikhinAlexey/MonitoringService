@@ -1,4 +1,8 @@
-﻿using Common.Log;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Common.Log;
 using Core.Models;
 using Core.Repositories;
 using Core.Services;
@@ -6,10 +10,6 @@ using Core.Settings;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Services;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace MonitoringService.Test
 {
@@ -21,8 +21,9 @@ namespace MonitoringService.Test
         Mock<IApiMonitoringObjectRepository> _mockApiMonitoringObjectRepository;
         Mock<IApiHealthCheckErrorRepository> _mockApiHealthCheckErrorRepository;
         Mock<IIsAliveService> _mockIsAliveService;
-        public int ExpirationDateInSeconds = 60;
         Mock<ILog> _mockLogger;
+
+        public int ExpirationDateInSeconds = 60;
 
         [TestInitialize]
         public void Init()
@@ -216,7 +217,6 @@ namespace MonitoringService.Test
             return new MonitoringJob(
                 _mockMonitoringService.Object,
                 _mockBaseSettings.Object,
-                _mockApiMonitoringObjectRepository.Object,
                 _mockApiHealthCheckErrorRepository.Object,
                 _mockIsAliveService.Object,
                 _mockLogger.Object);

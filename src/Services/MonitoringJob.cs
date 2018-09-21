@@ -1,16 +1,16 @@
-﻿using Common.Log;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Common.Log;
 using Core.Exceptions;
 using Core.Jobs;
 using Core.Models;
 using Core.Repositories;
 using Core.Services;
 using Core.Settings;
-using System;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Services
 {
@@ -25,7 +25,6 @@ namespace Services
         public MonitoringJob(
             IMonitoringService monitoringService,
             IBaseSettings settings,
-            IApiMonitoringObjectRepository apiMonitoringObjectRepository,
             IApiHealthCheckErrorRepository apiHealthCheckErrorRepository,
             IIsAliveService isAliveService,
             ILog log)

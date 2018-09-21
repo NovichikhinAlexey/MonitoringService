@@ -2,11 +2,10 @@
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Threading;
-using Newtonsoft.Json;
-using Common.Log;
 using Core.Models;
 using Core.Services;
 using Core.Exceptions;
+using Newtonsoft.Json;
 
 namespace Services
 {
@@ -15,11 +14,9 @@ namespace Services
     {
         private const int _maxContentLength = 30000;
         private readonly HttpClient _httpClient;
-        private readonly ILog _log;
 
-        public IsAliveService(ILog log)
+        public IsAliveService()
         {
-            _log = log;
             _httpClient = new HttpClient();
         }
 

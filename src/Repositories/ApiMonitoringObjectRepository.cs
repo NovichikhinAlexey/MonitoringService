@@ -1,12 +1,10 @@
-﻿using AzureStorage;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using AzureStorage;
+using Core.Models;
 using Core.Repositories;
 using Microsoft.WindowsAzure.Storage.Table;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.WindowsAzure.Storage;
-using Core.Models;
 
 namespace Repositories
 {
@@ -14,15 +12,8 @@ namespace Repositories
     {
         public string ServiceName
         {
-            get
-            {
-                return this.RowKey;
-            }
-
-            set
-            {
-                this.RowKey = value;
-            }
+            get => RowKey;
+            set => RowKey = value;
         }
         public string Version { get; set; }
         public string Url { get; set; }

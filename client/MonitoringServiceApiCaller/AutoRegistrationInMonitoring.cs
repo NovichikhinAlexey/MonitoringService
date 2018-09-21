@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.PlatformAbstractions;
-using Microsoft.Rest;
 using AsyncFriendlyStackTrace;
 using Common.Log;
+using JetBrains.Annotations;
 using Lykke.MonitoringServiceApiCaller.Models;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.PlatformAbstractions;
 
 namespace Lykke.MonitoringServiceApiCaller
 {
     /// <summary>
     /// Class for auto-registration in monitoring service
     /// </summary>
+    [PublicAPI]
     public static class AutoRegistrationInMonitoring
     {
         private const string _myMonitoringUrlEnvVarName = "MyMonitoringUrl";
@@ -83,7 +84,7 @@ namespace Lykke.MonitoringServiceApiCaller
                         myMonitoringName = $"{myMonitoringName}-{instanceTag}";
                     }
                 }
-                catch (HttpOperationException)
+                catch
                 {
                     //Duplicated registration is not found - proceed with usual registration
                 }

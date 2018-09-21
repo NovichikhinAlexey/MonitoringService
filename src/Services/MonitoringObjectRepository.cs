@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core.Models;
 using Core.Repositories;
@@ -9,7 +8,6 @@ namespace Services
     public class MonitoringObjectRepository : IMonitoringObjectRepository
     {
         private readonly IDictionary<string, IMonitoringObject> _monitoringDictionary;
-        private readonly Guid _guid = Guid.NewGuid();
 
         public MonitoringObjectRepository()
         {

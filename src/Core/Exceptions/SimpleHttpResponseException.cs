@@ -5,7 +5,7 @@ namespace Core.Exceptions
 {
     public class SimpleHttpResponseException : Exception
     {
-        public HttpStatusCode StatusCode { get; private set; }
+        public HttpStatusCode StatusCode { get; }
 
         public SimpleHttpResponseException(HttpStatusCode statusCode, string content) : base(content)
         {

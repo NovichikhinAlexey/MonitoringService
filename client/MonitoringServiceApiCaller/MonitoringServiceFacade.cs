@@ -1,65 +1,74 @@
-﻿using Lykke.MonitoringServiceApiCaller.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+using Lykke.HttpClientGenerator;
+using Lykke.HttpClientGenerator.Infrastructure;
+using Lykke.MonitoringServiceApiCaller.Models;
 
 namespace Lykke.MonitoringServiceApiCaller
 {
     /// <summary>
     /// MonitoringServiceFacade uses HttpClient. Consider using it as singleton. 
     /// </summary>
-    public class MonitoringServiceFacade
+    public class MonitoringServiceFacade : IMonitoringServiceClient
     {
-        private readonly IMonitoringService _monitoringService;
+        public IMonitoring Monitoring { get; }
+
+        public IUrlMonitoring UrlMonitoring { get; }
 
         public MonitoringServiceFacade(string monitoringServiceUrl)
+            : this(monitoringServiceUrl, null)
         {
-            _monitoringService = new MonitoringService(new Uri(monitoringServiceUrl), new HttpClient());
         }
 
-        public MonitoringServiceFacade(IMonitoringService monitoringService)
+        public MonitoringServiceFacade(string monitoringServiceUrl, [CanBeNull] Func<HttpClientGeneratorBuilder, HttpClientGeneratorBuilder> builderConfigure)
         {
-            _monitoringService = monitoringService;
+            var clientBuilder = HttpClientGenerator.HttpClientGenerator.BuildForUrl(monitoringServiceUrl)
+                .WithAdditionalCallsWrapper(new ExceptionHandlerCallsWrapper());
+
+            clientBuilder = builderConfigure?.Invoke(clientBuilder) ?? clientBuilder.WithoutRetries();
+
+            var clientGenerator = clientBuilder.Create();
+            Monitoring = clientGenerator.Generate<IMonitoring>();
+            UrlMonitoring = clientGenerator.Generate<IUrlMonitoring>();
         }
 
         public async Task<IEnumerable<MonitoringObjectModel>> GetAll()
         {
-            ListDataMonitoringObjectModel model = await _monitoringService.ApiMonitoringGetAsync();
+            ListDataMonitoringObjectModel model = await Monitoring.Get();
 
             return model.Data;
         }
 
         public async Task Ping(MonitoringObjectPingModel pingModel)
         {
-            await _monitoringService.ApiMonitoringPingPostAsync(pingModel);
+            await Monitoring.Ping(pingModel);
         }
 
         public async Task<MonitoringObjectModel> GetService(string serviceName)
         {
-            MonitoringObjectModel result = await _monitoringService.ApiMonitoringByServiceNameGetAsync(serviceName);
-
-            return result;
+            return await Monitoring.GetByServiceName(serviceName);
         }
 
         public async Task RemoveService(string serviceName)
         {
-            await _monitoringService.ApiMonitoringRemoveByServiceNameDeleteAsync(serviceName);
+            await Monitoring.RemoveByServiceName(serviceName);
         }
 
         public async Task Mute(MonitoringObjectMuteModel muteModel)
         {
-            await _monitoringService.ApiMonitoringMutePostAsync(muteModel);
+            await Monitoring.Mute(muteModel);
         }
 
         public async Task Unmute(MonitoringObjectUnmuteModel unmuteModel)
         {
-            await _monitoringService.ApiMonitoringUnmutePostAsync(unmuteModel);
+            await Monitoring.Unmute(unmuteModel);
         }
 
         public async Task MonitorUrl(UrlMonitoringObjectModel urlMonitoringObjectModel)
         {
-            await _monitoringService.ApiUrlMonitoringMonitorPostAsync(urlMonitoringObjectModel);
+            await UrlMonitoring.Monitor(urlMonitoringObjectModel);
         }
     }
 }

@@ -1,76 +1,76 @@
-﻿//using Common.Log;
-//using Core.Models;
-//using Core.Repositories;
-//using Core.Services;
-//using Core.Settings;
-//using Microsoft.VisualStudio.TestTools.UnitTesting;
-//using Moq;
-//using Services;
-//using System;
-//using System.Collections.Generic;
-//using System.Text;
-//using System.Threading;
-//using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Core.Models;
+using Core.Repositories;
+using Lykke.MonitoringServiceApiCaller;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
-//namespace MonitoringService.Test
-//{
-//    [TestClass]
-//    public class MonitiringServiceTest
-//    {
-//        Mock<IBaseSettings> _mockBaseSettings;
-//        Mock<IMonitoringObjectRepository> _mockMonitoringObjectRepository;
-//        Mock<IApiMonitoringObjectRepository> _mockApiMonitoringObjectRepository;
-//        public int ExpirationDateInSeconds = 60;
-//        Mock<ILog> _mockLogger;
+namespace MonitoringService.Test
+{
+    [TestClass]
+    public class MonitiringServiceTest
+    {
+        Mock<IMonitoringObjectRepository> _mockMonitoringObjectRepository;
+        Mock<IApiMonitoringObjectRepository> _mockApiMonitoringObjectRepository;
 
-//        [TestInitialize]
-//        public void Init()
-//        {
-//            _mockBaseSettings = new Mock<IBaseSettings>();
-//            _mockMonitoringObjectRepository = new Mock<IMonitoringObjectRepository>();
-//            _mockApiMonitoringObjectRepository = new Mock<IApiMonitoringObjectRepository>();
-//            _mockLogger = new Mock<ILog>();
-//        }
+        public int ExpirationDateInSeconds = 60;
 
-//        [TestMethod]
-//        public async Task MonitiringServiceTest()
-//        {
-//            #region Arrange
-//            IEnumerable<IMonitoringObject> repository = new List<IMonitoringObject>()
-//            {
-//                new MonitoringObject()
-//                {
-//                    ServiceName = "TestName1",
-//                    LastTime = DateTime.UtcNow.AddSeconds(-ExpirationDateInSeconds),
-//                    Version = "TestVersion"
-//                },
-//            };
+        [TestInitialize]
+        public void Init()
+        {
+            _mockMonitoringObjectRepository = new Mock<IMonitoringObjectRepository>();
+            _mockApiMonitoringObjectRepository = new Mock<IApiMonitoringObjectRepository>();
+        }
 
-//            #region SetUpMocks
-//            _mockMonitoringObjectRepository.Setup(x => x.GetAll()).Returns(Task.FromResult(repository));
-//            var monitoringService = GetMonitoringService();
-//            #endregion SetUpMocks
+        [TestMethod]
+        public async Task ServiceTest()
+        {
+            #region Arrange
 
-//            #endregion Arrange
+            string serviceName = "TestName1";
 
-//            #region Act
+            IEnumerable<IMonitoringObject> repository = new List<IMonitoringObject>()
+            {
+                new MonitoringObject()
+                {
+                    ServiceName = serviceName,
+                    LastTime = DateTime.UtcNow.AddSeconds(-ExpirationDateInSeconds),
+                    Version = "TestVersion"
+                },
+            };
 
-//            await monitoringService.();
+            #region SetUpMocks
+            _mockMonitoringObjectRepository.Setup(x => x.GetAllAsync()).Returns(Task.FromResult(repository));
+            var monitoringService = new Services.MonitoringService(_mockMonitoringObjectRepository.Object, _mockApiMonitoringObjectRepository.Object);
+            #endregion SetUpMocks
 
-//            #endregion Act
+            #endregion Arrange
 
-//            #region Assert
+            #region Act
 
-//            _mockSlackNotifier.Verify(x => x.ErrorAsync(It.IsAny<string>()));
+            var objs = await monitoringService.GetCurrentSnapshot();
 
-//            #endregion Assert
-//        }
+            #endregion Act
 
+            #region Assert
 
-//        private Services.MonitoringService GetMonitoringService()
-//        {
-//            return new Services.MonitoringService(_mockMonitoringObjectRepository.Object,
-//                _mockApiMonitoringObjectRepository.Object);
-//        }
-//    }
-//}
+            Assert.IsNotNull(objs);
+            Assert.AreEqual(1, objs.Count());
+            Assert.IsTrue(objs.Any(o => o.ServiceName == serviceName));
+
+            #endregion Assert
+        }
+
+        [TestMethod]
+        [Ignore("Integration")]
+        public async Task IntegrationTest()
+        {
+            var facade = new MonitoringServiceFacade("http://monitoring-service.lykke-service.svc.cluster.local");
+            var objs = await facade.GetAll();
+            Assert.IsNotNull(objs);
+        }
+    }
+}
