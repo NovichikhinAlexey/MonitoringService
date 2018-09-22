@@ -1,6 +1,6 @@
 ﻿using System;
+using Lykke.Common;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.PlatformAbstractions;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace MonitoringService.Controllers
@@ -17,8 +17,8 @@ namespace MonitoringService.Controllers
             return Ok(
                 new
                 {
-                    Name = PlatformServices.Default.Application.ApplicationName,
-                    Version = PlatformServices.Default.Application.ApplicationVersion,
+                    Name = AppEnvironment.Name,
+                    Version = AppEnvironment.Version,
                     Env = Environment.GetEnvironmentVariable("ENV_INFO"),
                 });
         }

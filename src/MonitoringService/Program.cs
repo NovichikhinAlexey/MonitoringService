@@ -1,9 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+using Lykke.Common;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.PlatformAbstractions;
 
 namespace MonitoringService
 {
@@ -11,9 +10,9 @@ namespace MonitoringService
     {
         public static string EnvInfo => Environment.GetEnvironmentVariable("ENV_INFO");
 
-        public static void Main(string[] args)
+        public static void Main()
         {
-            Console.WriteLine($"Monitoring version {PlatformServices.Default.Application.ApplicationVersion}");
+            Console.WriteLine($"{AppEnvironment.Name} version {AppEnvironment.Version}");
 #if DEBUG
             Console.WriteLine("Is DEBUG");
 #else
@@ -23,13 +22,15 @@ namespace MonitoringService
 
             try
             {
-                var host = new WebHostBuilder()
+                var hostBuilder = new WebHostBuilder()
                     .UseKestrel()
                     .UseContentRoot(Directory.GetCurrentDirectory())
                     .UseIISIntegration()
-                    .UseStartup<Startup>()
-                    .UseApplicationInsights()
-                    .Build();
+                    .UseStartup<Startup>();
+#if !DEBUG
+                hostBuilder = hostBuilder.UseApplicationInsights();
+#endif
+                var host = hostBuilder.Build();
 
                 host.Run();
             }

@@ -1,15 +1,14 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using AzureStorage.Tables;
 using Common.Log;
-using Lykke.SettingsReader;
-using AzureStorage.Tables;
-using AzureStorage.Blob;
 using Core;
 using Core.Jobs;
 using Core.Repositories;
 using Core.Services;
 using Core.Settings;
-using Services;
+using Lykke.SettingsReader;
+using Microsoft.Extensions.DependencyInjection;
 using Repositories;
+using Services;
 
 namespace MonitoringService.Dependencies
 {
@@ -43,11 +42,6 @@ namespace MonitoringService.Dependencies
                 log);
             services.AddSingleton<IApiHealthCheckErrorRepository>(provider =>
                 new ApiHealthCheckErrorRepository(errorStorage));
-
-            var blobStorage = AzureBlobStorage.Create(
-                settingsManager.ConnectionString(i => i.MonitoringService.Db.DataConnectionString));
-            services.AddSingleton<IBackUpRepository>(provider =>
-                new BackUpRepository(Constants.BackUpBlobName, blobStorage, log));
         }
     }
 }

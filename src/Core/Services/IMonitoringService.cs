@@ -1,19 +1,17 @@
-﻿using Core.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Core.Models;
 
 namespace Core.Services
 {
     public interface IMonitoringService
     {
-        //In future may require async
-        Task Ping(IMonitoringObject mObject);
-        Task<IEnumerable<IMonitoringObject>> GetCurrentSnapshot();
-        Task Mute(string serviceName, int minutes);
-        Task Unmute(string serviceName);
-        Task Remove(string serviceName);
-        Task<IMonitoringObject> GetByName(string serviceName);
+        Task PingAsync(IMonitoringObject mObject);
+        Task<IEnumerable<IMonitoringObject>> GetCurrentSnapshotAsync();
+        Task MuteAsync(string serviceName, int minutes);
+        Task UnmuteAsync(string serviceName);
+        Task RemoveByNameAsync(string serviceName);
+        Task RemoveByUrlAsync(string url);
+        Task<IMonitoringObject> GetByNameAsync(string serviceName);
     }
 }

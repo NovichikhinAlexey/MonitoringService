@@ -1,16 +1,17 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Core.Models;
+using Core.Services;
+using Lykke.MonitoringServiceApiCaller;
+using Lykke.MonitoringServiceApiCaller.Models;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using Core.Services;
-using Core.Models;
-using MonitoringService.Models;
 
 namespace MonitoringService.Controllers
 {
     [Route("api/[controller]")]
     [Produces("application/json")]
-    public class UrlMonitoringController : Controller
+    public class UrlMonitoringController : Controller, IUrlMonitoring
     {
         private readonly IUrlMonitoringService _monitoringService;
 
@@ -21,23 +22,25 @@ namespace MonitoringService.Controllers
 
         [HttpGet]
         [SwaggerOperation("Get")]
-        [ProducesResponseType(typeof(ListData<UrlMonitoringObjectModel>), 200)]
-        public async Task<IActionResult> Get()
+        [ProducesResponseType(typeof(ListDataUrlMonitoringObjectModel), 200)]
+        public async Task<ListDataUrlMonitoringObjectModel> Get()
         {
             var snapshot = await _monitoringService.GetAllAsync();
-            var model = snapshot.Select(x => new UrlMonitoringObjectModel()
-            {
-                ServiceName = x.ServiceName,
-                Url = x.Url
-            });
+            var model = snapshot
+                .Select(x => new UrlMonitoringObjectModel
+                {
+                    ServiceName = x.ServiceName,
+                    Url = x.Url
+                })
+                .ToList();
 
-            return Ok(new ListData<UrlMonitoringObjectModel>() { Data = model });
+            return new ListDataUrlMonitoringObjectModel { Data = model };
         }
 
         [HttpPost]
         [Route("monitor")]
         [SwaggerOperation("Monitor")]
-        public async Task Post([FromBody]UrlMonitoringObjectModel model)
+        public async Task Monitor([FromBody]UrlMonitoringObjectModel model)
         {
             var mappedModel = new MonitoringObject()
             {

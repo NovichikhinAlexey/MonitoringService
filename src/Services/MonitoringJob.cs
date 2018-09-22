@@ -1,16 +1,16 @@
-﻿using Common.Log;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Common.Log;
 using Core.Exceptions;
 using Core.Jobs;
 using Core.Models;
 using Core.Repositories;
 using Core.Services;
 using Core.Settings;
-using System;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Services
 {
@@ -25,7 +25,6 @@ namespace Services
         public MonitoringJob(
             IMonitoringService monitoringService,
             IBaseSettings settings,
-            IApiMonitoringObjectRepository apiMonitoringObjectRepository,
             IApiHealthCheckErrorRepository apiHealthCheckErrorRepository,
             IIsAliveService isAliveService,
             ILog log)
@@ -106,7 +105,7 @@ namespace Services
 
             foreach (var api in apisMonitoring)
             {
-                await _monitoringService.Ping(api);
+                await _monitoringService.PingAsync(api);
             }
         }
 
@@ -137,7 +136,7 @@ namespace Services
         {
             var now = DateTime.UtcNow;
             Func<IMonitoringObject, bool> decoratedFilter = (@object) => !(@object.SkipCheckUntil > now) && filter(@object);
-            var allMonitoringObjects = await _monitoringService.GetCurrentSnapshot();
+            var allMonitoringObjects = await _monitoringService.GetCurrentSnapshotAsync();
             var filteredObjects = allMonitoringObjects.Where(@object => decoratedFilter(@object));
 
             return filteredObjects.ToList();
