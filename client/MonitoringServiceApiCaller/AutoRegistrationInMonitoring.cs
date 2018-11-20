@@ -80,7 +80,10 @@ namespace Lykke.MonitoringServiceApiCaller
 
                     if (monitoringRegistration.Url != MissingEnvVarUrl)
                     {
-                        log.WriteMonitor("Auto-registration in monitoring", podTag, $"There is a registration for {myMonitoringName} in monitoring service!");
+                        log.WriteMonitor(
+                            "Auto-registration in monitoring",
+                            podTag,
+                            $"There is a registration for {myMonitoringName} on another url - {monitoringRegistration.Url}. Can't register on {myMonitoringUrl}.");
 
                         myMonitoringUrl = MissingEnvVarUrl;
                         string instanceTag = string.IsNullOrEmpty(podTag) ? Guid.NewGuid().ToString() : podTag;
