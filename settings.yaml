@@ -1,0 +1,26 @@
+MonitoringService:
+    Db:
+        LogsConnectionString:
+            settings-key: MonitoringService-Db-LogsConnectionString
+            types:
+            - AzureTableStorage
+        DataConnectionString:
+            settings-key: MonitoringService-Db-DataConnectionString
+            types:
+            - AzureTableStorage
+    MaxTimeDifferenceInSeconds:
+        settings-key: MonitoringService-MaxTimeDifferenceInSeconds
+    MonitoringJobFrequencyInSeconds:
+        settings-key: MonitoringService-MonitoringJobFrequencyInSeconds
+    MonitoringApiFrequencyInSeconds:
+        settings-key: MonitoringService-MonitoringApiFrequencyInSeconds
+    PingTimeoutInSeconds:
+        settings-key: MonitoringService-PingTimeoutInSeconds
+SlackNotifications:
+    AzureQueue:
+        ConnectionString:
+            settings-key: SlackNotificationsConnString
+            types:
+                - AzureTableStorage
+        QueueName:
+            settings-key: SlackQueueName
