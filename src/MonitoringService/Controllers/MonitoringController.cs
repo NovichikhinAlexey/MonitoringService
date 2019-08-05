@@ -56,7 +56,8 @@ namespace MonitoringService.Controllers
                 ServiceName = mObject.ServiceName,
                 SkipUntil = mObject.SkipCheckUntil,
                 Version = mObject.Version,
-                Url = mObject.Url
+                Url = mObject.Url,
+                EnvInfo = mObject.EnvInfo,
             };
         }
 
