@@ -20,6 +20,7 @@ namespace Repositories
         public string Url { get; set; }
         public DateTime LastTime { get; set; }
         public DateTime? SkipCheckUntil { get; set; }
+        public string EnvInfo { get; set; }
 
         public static string GetPartitionKey()
         {
@@ -28,14 +29,15 @@ namespace Repositories
 
         public static ApiMonitoringObjectEntity GetApiMonitoringObjectEntity(IMonitoringObject mObject)
         {
-            return new ApiMonitoringObjectEntity()
+            return new ApiMonitoringObjectEntity
             {
                 PartitionKey = GetPartitionKey(),
                 ServiceName = mObject.ServiceName,
                 Url = mObject.Url,
                 LastTime = mObject.LastTime != DateTime.MinValue ? mObject.LastTime : DateTime.UtcNow,
                 SkipCheckUntil = mObject.SkipCheckUntil,
-                Version = mObject.Version
+                Version = mObject.Version,
+                EnvInfo = mObject.EnvInfo,
             };
         }
     }

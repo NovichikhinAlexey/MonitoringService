@@ -78,6 +78,7 @@ namespace Services
                         IApiStatusObject statusObject = await _isAliveService.GetStatusAsync(monitoringItem.Url, cts.Token);
                         monitoringItem.Version = statusObject.Version;
                         monitoringItem.LastTime = now;
+                        monitoringItem.EnvInfo = statusObject.Env;
                     }
                     catch (OperationCanceledException)
                     {
