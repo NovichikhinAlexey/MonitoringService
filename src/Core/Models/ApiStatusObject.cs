@@ -5,7 +5,10 @@ namespace Core.Models
     public interface IApiStatusObject
     {
         string Version { get; set; }
+
         IEnumerable<IssueIndicatorObject> IssueIndicators { get; set; }
+
+        string Env { get; set; }
     }
 
     //{"Version":"1.45.2855.0","Env":"slot=A"}
@@ -17,5 +20,7 @@ namespace Core.Models
         /// Issue indicators by service self-control
         /// </summary>
         public IEnumerable<IssueIndicatorObject> IssueIndicators { get; set; }
+
+        public string Env { get; set; }
     }
 }

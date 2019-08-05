@@ -9,6 +9,7 @@ namespace Core.Models
         DateTime LastTime { get; set; }
         DateTime? SkipCheckUntil { get; set; }
         string Url { get; set; }
+        string EnvInfo { get; set; }
     }
 
     public class MonitoringObject : IMonitoringObject
@@ -18,5 +19,6 @@ namespace Core.Models
         public DateTime LastTime { get; set; }
         public DateTime? SkipCheckUntil { get; set; }
         public string Url { get; set; }
+        public string EnvInfo { get; set; }
     }
 }

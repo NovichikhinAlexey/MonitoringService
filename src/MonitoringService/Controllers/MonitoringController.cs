@@ -34,7 +34,8 @@ namespace MonitoringService.Controllers
                     Version = x.Version,
                     LastPing = x.LastTime,
                     SkipUntil = x.SkipCheckUntil,
-                    Url = x.Url
+                    Url = x.Url,
+                    EnvInfo = x.EnvInfo,
                 })
                 .ToList();
 

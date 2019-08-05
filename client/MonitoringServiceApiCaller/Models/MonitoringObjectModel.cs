@@ -18,5 +18,8 @@ namespace Lykke.MonitoringServiceApiCaller.Models
 
         [JsonProperty(PropertyName = "url")]
         public string Url { get; set; }
+
+        [JsonProperty(PropertyName = "envInfo")]
+        public string EnvInfo { get; set; }
     }
 }
