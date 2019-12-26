@@ -16,7 +16,9 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 2.2.108
-    - name: Build
-      run: dotnet build --configuration Release
+    #- name: Build
+    #  run: dotnet build --configuration Release /p:AssemblyVersion=1.2.3.4
     - name: testrun
-      run: echo $GITHUB_REF
+      run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+    - name: testrun1
+      run: echo ${GITHUB_REF#refs/tags/}
