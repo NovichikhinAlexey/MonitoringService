@@ -19,6 +19,4 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release
     - name: testrun
-      run: echo {{ TAG }}
-    - name: testrun1
-      run: echo $TAG
+      run: echo $GITHUB_REF
