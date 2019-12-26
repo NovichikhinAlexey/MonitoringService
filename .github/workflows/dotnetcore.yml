@@ -1,9 +1,6 @@
 name: Build release
 
-on: # [push] - if use this then build for each push to master
-  push:
-    tags: 
-      - '*' # Push events to matching *, i.e. 1.0, 20.15.10
+on: [push]
 
 jobs:
   build:
