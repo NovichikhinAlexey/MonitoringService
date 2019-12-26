@@ -1,6 +1,9 @@
 name: Build release
 
-on: [push]
+on: # [push] - if use this then build for each push to master
+  push:
+    tags: 
+      - '*'
 
 jobs:
   build:
@@ -16,4 +19,6 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release
     - name: testrun
-      run: echo "hello"
+      run: echo {{ TAG }}
+    - name: testrun1
+      run: echo $TAG
